@@ -1,9 +1,7 @@
 file(GLOB UX_LIBRARY
-    Encoder/*.cpp
-    IRManager/*.cpp
+    src/*.cpp
     )
 
-add_llvm_pass_plugin(myFirstPass
-    main.cpp
+add_llvm_pass_plugin(UX-Obfuscator
     ${UX_LIBRARY}
    )
