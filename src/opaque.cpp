@@ -114,6 +114,8 @@ namespace opaque {
 
                     }
 
+                    break;
+
                 }
 
         }

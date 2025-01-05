@@ -3,6 +3,7 @@
 
 #include "include/utils.hpp"
 
+
 #define MAX_UINT8 0xFF
 #define MAX_UINT16 0xFFFF
 #define MAX_UINT32 0xFFFFFFFF
@@ -13,152 +14,214 @@ using namespace llvm;
 
 namespace math {
 
-	std::vector<Instruction*> generate_equation(
-		Module& mod, uint64_t& eq_to_out,
-		std::vector<insval_t>& opaque_vals,
-		size_t num_iters, size_t num_rnd_slots) {
+	template <typename T>
+	insval_t generate_equation(
+		Module& mod,
+		const std::vector<insval_t>& opaque_vals,
+		size_t num_deepness) {
 
-		typedef insval_t(*binop_cb_t)(insval_t*, insval_t*);
-		struct insval_optimized_t {
+		typedef insval_t(*binop_cb_t)(const insval_t*, const insval_t*);
+
+		struct insval_pack {
 			insval_t insval;
-			bool used;
+			bool used = false;
 		};
 
 		auto& ctx = mod.getContext();
 
-		IntegerType* ty_i64 = Type::getInt64Ty(ctx);
+		IntegerType* ty_val = decide_integer_type<T>(ctx);
 
-		std::vector<binop_cb_t> binop_cbs = {
+		static std::array<binop_cb_t, 8> binop_cbs = {
 
 			/* NOT, ADD, SUB, MUL, DIV, OR, XOR, SHL, LSHR */
 
-			[](insval_t* operand_1, insval_t* operand_2 = nullptr) -> insval_t { // NOT
+			[](const insval_t* operand_1, const insval_t* operand_2 = nullptr) -> insval_t { // NOT
 
 				UNUSED(operand_2);
 
-				return { { BinaryOperator::CreateNot(*(operand_1->first.end() - 1)) }, ~operand_1->second };
+				return {
+					{ BinaryOperator::CreateNot(*(operand_1->first.end() - 1)) },
+					static_cast<T>(~operand_1->second)
+				};
 
 			},
 
-			[](insval_t* operand_1, insval_t* operand_2) -> insval_t { // ADD
+			[](const insval_t* operand_1, const insval_t* operand_2) -> insval_t { // ADD
 
-				return { { BinaryOperator::CreateAdd(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) }, operand_1->second + operand_2->second };
-
-			},
-
-			[](insval_t* operand_1, insval_t* operand_2) -> insval_t { // SUB
-
-				return { { BinaryOperator::CreateSub(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) }, operand_1->second - operand_2->second };
+				return {
+					{ BinaryOperator::CreateAdd(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) },
+					static_cast<T>(operand_1->second + operand_2->second)
+				};
 
 			},
 
-			[](insval_t* operand_1, insval_t* operand_2) -> insval_t { // MUL
+			[](const insval_t* operand_1, const insval_t* operand_2) -> insval_t { // SUB
 
-				return { { BinaryOperator::CreateMul(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) }, operand_1->second * operand_2->second };
-
-			},
-
-			[](insval_t* operand_1, insval_t* operand_2) -> insval_t { // DIV
-
-				return { { BinaryOperator::CreateUDiv(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) }, operand_1->second / operand_2->second };
+				return {
+					{ BinaryOperator::CreateSub(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) },
+					static_cast<T>(operand_1->second - operand_2->second)
+				};
 
 			},
 
-			[](insval_t* operand_1, insval_t* operand_2) -> insval_t { // OR
+			[](const insval_t* operand_1, const insval_t* operand_2) -> insval_t { // MUL
 
-				return { { BinaryOperator::CreateOr(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) }, operand_1->second | operand_2->second };
-
-			},
-
-			[](insval_t* operand_1, insval_t* operand_2) -> insval_t { // XOR
-
-				return { { BinaryOperator::CreateXor(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) }, operand_1->second ^ operand_2->second };
+				return {
+					{ BinaryOperator::CreateMul(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) },
+					static_cast<T>(operand_1->second * operand_2->second)
+				};
 
 			},
 
-			[](insval_t* operand_1, insval_t* operand_2) -> insval_t { // SHL
+			[](const insval_t* operand_1, const insval_t* operand_2) -> insval_t { // OR
 
-				return { { BinaryOperator::CreateShl(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) }, operand_1->second << operand_2->second };
+				return {
+					{ BinaryOperator::CreateOr(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) },
+					static_cast<T>(operand_1->second | operand_2->second)
+				};
 
 			},
 
-			[](insval_t* operand_1, insval_t* operand_2) -> insval_t { // LSHR
+			[](const insval_t* operand_1, const insval_t* operand_2) -> insval_t { // XOR
 
-				return { { BinaryOperator::CreateLShr(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) }, operand_1->second >> operand_2->second };
+				return {
+					{ BinaryOperator::CreateXor(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) },
+					static_cast<T>(operand_1->second ^ operand_2->second)
+				};
+
+			},
+
+			[](const insval_t* operand_1, const insval_t* operand_2) -> insval_t { // SHL
+
+				return {
+					{ BinaryOperator::CreateShl(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) },
+					static_cast<T>(operand_1->second << operand_2->second)
+				};
+
+			},
+
+			[](const insval_t* operand_1, const insval_t* operand_2) -> insval_t { // LSHR
+
+				return {
+					{ BinaryOperator::CreateLShr(*(operand_1->first.end() - 1), *(operand_2->first.end() - 1)) },
+					static_cast<T>(operand_1->second >> operand_2->second)
+				};
 
 			}
 
 		};
 
+		size_t num_slots = opaque_vals.size();
 
 		// Generate and initialize slots with initial random values
+		// Slots are two dimensional, first dimension is for 'deepness (number of iterations)'.
+		std::vector<std::vector<insval_pack>> slots(num_deepness, std::vector<insval_pack>(num_slots));
 
-		std::vector<insval_optimized_t> slots(num_rnd_slots);
+		for (size_t i = 0; i < num_slots; ++i) {
 
-		for (size_t i = 0; i < num_rnd_slots; ++i) {
-
-			uint64_t rnd_val = gen_random_int<uint64_t>(MAX_UINT32, MAX_UINT64);
+			T rnd_val = gen_random_int<T>(0, -1);
 
 			insval_t rnd_insval = { 
-				{ dynamic_cast<Value*>(ConstantInt::get(ty_i64, rnd_val)) },
+				{ dynamic_cast<Value*>(ConstantInt::get(ty_val, rnd_val)) },
 				rnd_val
 			};
 
-			size_t j = i >= opaque_vals.size() ? (i - opaque_vals.size()) : i;
+			const insval_t* opaque_val = &opaque_vals[i];
 
-			insval_t res_operator = binop_cbs[gen_random_int<size_t>(1, binop_cbs.size()-1)](&rnd_insval, &opaque_vals[j]); // NOT operator is not accepted
+			insval_t res_operator = binop_cbs[gen_random_int<size_t>(1 /* NOT operator is not accepted */, binop_cbs.size()-1)](
+				&rnd_insval,
+				opaque_val);
 
-			rnd_insval.first.insert(rnd_insval.first.begin(), res_operator.first.begin(), res_operator.first.end());
-			rnd_insval.second = res_operator.second;
+			insval_pack& slot = slots[0][i];
+			auto& insts_slot = slot.insval.first;
 
-			slots[i] = { rnd_insval, false /* no use, just def */ };
+			// Push opaque value's instructions to instruction list first	
+			insts_slot.insert(insts_slot.begin(), opaque_val->first.begin(), opaque_val->first.end());
 
-		}
+			// Now push binary operator instruction
+			insts_slot.push_back(res_operator.first[0]); // Binary operators consist of single instruction
 
-		// Push opaque values to instruction list first, because slot values are dependent to them
-
-		std::vector<Instruction*> instr_out = {};
-
-		for (insval_t& opaque_val : opaque_vals) {
-
-			instr_out.insert(
-				instr_out.end(),
-				reinterpret_cast<Instruction**>(&*opaque_val.first.begin()),
-				reinterpret_cast<Instruction**>(&*opaque_val.first.end()));
-			
-		}
-
-		for (size_t i = 0; i < num_iters; ++i) {
-
-			insval_optimized_t& slot_1 = slots[gen_random_int<size_t>(0, slots.size()-1)]; // we picked up a slot randomly and we are going to assume it as first operand
-			insval_optimized_t& slot_2 = slots[gen_random_int<size_t>(0, slots.size()-1)]; // we also picked up a slot randomly and we are going to assume it as second operand
-
-			insval_t res_operator = binop_cbs[gen_random_int<size_t>(0, binop_cbs.size()-1)](&slot_1.insval, &slot_2.insval); // we randomly picked up an operator and performed operation on it
-
-			slots.push_back({ res_operator, false /* no use, just def */ }); // push the result onto slots, so we might use it as an operand on next iterations
-
-			slot_1.used = true; slot_2.used = true;
+			// Set the resultant fixed value
+			slot.insval.second = static_cast<uint64_t>(res_operator.second);
 
 		}
 
-		/*
-		From now on, we need to push each slot onto instruction list except "unused" slots
-		Last slot will not be used - as expected - so we need to skip that
-		*/
-		for (size_t i = 0; i < slots.size() - 1; ++i) {
 
-			insval_optimized_t& slot = slots[i];
+		for (size_t deepness = 1; deepness < num_deepness; ++deepness) {
 
-			if (slot.used) instr_out.insert(
-				instr_out.end(),
-				reinterpret_cast<Instruction**>(&*slot.insval.first.begin()),
-				reinterpret_cast<Instruction**>(&*slot.insval.first.end()));
+			for (size_t i = 0; i < num_slots; ++i) {
+
+				auto i_slots = gen_random_int<size_t, 2>(0, num_slots - 1);
+
+				size_t i_slot_1 = i_slots[0];
+				size_t i_slot_2 = i_slots[1];
+
+				insval_pack& slot_1 = slots[deepness - 1][i_slot_1]; // we picked up a slot randomly and we are going to assume it as first operand
+				insval_pack& slot_2 = slots[deepness - 1][i_slot_2]; // we also picked up a slot randomly and we are going to assume it as second operand
+
+				insval_t res_operator = binop_cbs[
+					gen_random_int<size_t>(0, binop_cbs.size()-1)
+				](&slot_1.insval, &slot_2.insval); // we randomly picked up an operator and performed operation on it
+
+				insval_pack& slot = slots[deepness][i];
+				auto& insts_slot = slot.insval.first;
+
+				insts_slot.push_back(res_operator.first[0]);
+
+				slot.insval.second = static_cast<uint64_t>(res_operator.second);
+
+				slot_1.used = true;
+				slot_2.used = true;
+
+				// On the last deepness, we only need to compute one slot which is going to be returned
+				if (deepness == num_deepness - 1) {
+
+					slots[deepness].resize(1);
+
+					slot.used = true;
+
+					break;
+
+				}
+
+			}
 
 		}
 
-		eq_to_out = (*(slots.end() - 1)).insval.second; // write the computed value as a result of operations
+		insval_t insval_out;
+		auto& insts_out = insval_out.first;
+		insval_out.second = slots[num_deepness - 1][0].insval.second;
 
-		return instr_out;
+		for (size_t i = 0; i < num_deepness; ++i) {
+
+			auto& slots_on_depth = slots[i];
+
+			for (size_t j = 0; j < slots_on_depth.size(); ++j) {
+
+				insval_pack& slot = slots_on_depth[j];
+				auto& insts_slot = slot.insval.first;
+
+				if (!slot.used) { // clear instructions of slot from memory
+
+					for (auto* inst_slot : slot.insval.first) {
+
+						inst_slot->replaceAllUsesWith(UndefValue::get(inst_slot->getType()));
+
+						inst_slot->deleteValue(); // delete instruction from memory
+
+					}
+
+					continue;
+
+				}
+
+				insts_out.insert(insts_out.end(), insts_slot.begin(), insts_slot.end());
+
+			}
+
+		}
+
+		return insval_out;
 
 	}
 
@@ -197,95 +260,41 @@ namespace math {
 
 				const uint64_t i64_str = *reinterpret_cast<const uint64_t*>(str_begin);
 
-				/*
-				Random definitions:
-					This part consists of random values.
-					
-					defs: RA, RB
-
-					Opaque definitions:
-						This part consists of opaque values (which are also random).
-
-						defs: OA, OB, OC
-
-				Key definitions:
-					This part consist of key difinition, which is to make equation to be computed to STR[ [n, n+4] ]
-					
-					def: KVAL
-
-				Equation:
-
-					STR1 = str[ [0,4] ]
-
-					EQ1 = (RA & OA)
-					EQ2 = (RB >> OC)
-					EQ3 = (EQ1 << EQ2)
-					EQ4 = (EQ3 ^ OC)
-					EQ5 = (RB ^ OC)
-					EQ6 = (EQ5 + OB)
-					EQ7 = (EQ4 | EQ6)
-
-					EQ8 = (RA & OA)
-					EQ9 = (RB >> OC)
-					EQ10 = (EQ1 << EQ2)
-					EQ11 = (EQ3 ^ OC)
-					EQ12 = (RB ^ OC)
-					EQ13 = (EQ5 + OB)
-					EQ14 = (EQ4 | EQ6)
-
-					EQ8 = (EQ7 ^ KVAL)
-
-					STR1 = EQ8
-
-				*/
-
-				// Define the random values
-
-				uint64_t _ra = gen_random_int<uint64_t>(0, -1);
-				uint64_t _rb = gen_random_int<uint64_t>(0, -1);
-
-				ConstantInt* v_ra = ConstantInt::get(ty_i64, _ra);
-				ConstantInt* v_rb = ConstantInt::get(ty_i64, _rb);
-
-				uint64_t _oa = gen_random_int<uint64_t>(0, -1);
-				uint64_t _ob = gen_random_int<uint64_t>(0, -1);
-				uint64_t _oc = gen_random_int<uint64_t>(0, -1);
+				uint64_t val_opaque_1 = gen_random_int<uint64_t>(MAX_UINT16, MAX_UINT64);
+				uint64_t val_opaque_2 = gen_random_int<uint64_t>(MAX_UINT16, MAX_UINT64);
+				uint64_t val_opaque_3 = gen_random_int<uint64_t>(MAX_UINT16, MAX_UINT64);
 
 				// Push the opaque values
 
-				auto itrs_v_oa = opaque::opaque_by_user_shared_data(mod, _oa, 64);
-				instr_out.insert(instr_out.end(), itrs_v_oa.begin(), itrs_v_oa.end());
-				Instruction* v_oa = *(instr_out.end() - 1);
+				auto itrs_opaque_1 = opaque::opaque_by_user_shared_data(mod, val_opaque_1, 64);
+				auto itrs_opaque_2 = opaque::opaque_by_user_shared_data(mod, val_opaque_2, 64);
+				auto itrs_opaque_3 = opaque::opaque_by_user_shared_data(mod, val_opaque_3, 64);
 
-				auto itrs_v_ob = opaque::opaque_by_user_shared_data(mod, _ob, 64);
-				instr_out.insert(instr_out.end(), itrs_v_ob.begin(), itrs_v_ob.end());
-				Instruction* v_ob = *(instr_out.end() - 1);
+				std::vector<Value*> vals_opaque_1(itrs_opaque_1.begin(), itrs_opaque_1.end());
+				std::vector<Value*> vals_opaque_2(itrs_opaque_2.begin(), itrs_opaque_2.end());
+				std::vector<Value*> vals_opaque_3(itrs_opaque_3.begin(), itrs_opaque_3.end());
 
-				auto itrs_v_oc = opaque::opaque_by_user_shared_data(mod, _oc, 64);
-				instr_out.insert(instr_out.end(), itrs_v_oc.begin(), itrs_v_oc.end());
-				Instruction* v_oc = *(instr_out.end() - 1);
+				insval_t opaque_1 = { vals_opaque_1, val_opaque_1 };
+				insval_t opaque_2 = { vals_opaque_2, val_opaque_2 };
+				insval_t opaque_3 = { vals_opaque_3, val_opaque_3 };
 
-				// ( (((_ra ^ _oa) + _ob) | (((_rb & _oc) << (_ra >> _oa)) ^ _oc)) & (((_rb ^ _oc) + _ob) | (((_ra & _oa) << (_rb >> _oc)) ^ _oc)) ) ^ KVAL
+				std::vector<insval_t> opaque_vals = { opaque_1, opaque_2, opaque_3 };
 
-				uint64_t _kval = (((_rb ^ _oc) + _ob) | (((_ra & _oa) << (_rb >> _oc)) ^ _oc)) ^ i64_str;
+				insval_t insval_eq = generate_equation<uint64_t>(mod, opaque_vals, 30);
+				auto& insts_eq = insval_eq.first;
 
-				ConstantInt* v_kval = ConstantInt::get(ty_i64, _kval);
+				instr_out.insert(
+					instr_out.end(),
+					reinterpret_cast<Instruction**>(&*insts_eq.begin()),
+					reinterpret_cast<Instruction**>(&*insts_eq.end()));
 
-				Instruction* v_eq1 = BinaryOperator::CreateAnd(v_ra, v_oa);
-				Instruction* v_eq2 = BinaryOperator::CreateLShr(v_rb, v_oc);
-				Instruction* v_eq3 = BinaryOperator::CreateShl(v_eq1, v_eq2);
-				Instruction* v_eq4 = BinaryOperator::CreateXor(v_eq3, v_oc);
-				Instruction* v_eq5 = BinaryOperator::CreateXor(v_rb, v_oc);
-				Instruction* v_eq6 = BinaryOperator::CreateAdd(v_eq5, v_ob);
-				Instruction* v_eq7 = BinaryOperator::CreateOr(v_eq4, v_eq6);
-				Instruction* v_str = BinaryOperator::CreateXor(v_eq7, v_kval);
+				const uint64_t val_kval = i64_str ^ insval_eq.second;
 
-				std::vector<Instruction*> itrs_math = {
-					v_eq1, v_eq2, v_eq3, v_eq4,
-					v_eq5, v_eq6, v_eq7, v_str
-				};
+				Instruction* v_str = BinaryOperator::CreateXor(
+					*(instr_out.end() - 1),
+					ConstantInt::get(ty_i64, val_kval));
 
-				instr_out.insert(instr_out.end(), itrs_math.begin(), itrs_math.end());
+				instr_out.push_back(v_str);
 
 				size_t offset = static_cast<size_t>(str_begin - str.bytes_begin());
 
@@ -322,51 +331,41 @@ namespace math {
 
 				const uint32_t i32_str = *reinterpret_cast<const uint32_t*>(str_begin);
 
-				uint32_t _ra = gen_random_int<uint32_t>(0, -1);
-				uint32_t _rb = gen_random_int<uint32_t>(0, -1);
-
-				ConstantInt* v_ra = ConstantInt::get(ty_i32, _ra);
-				ConstantInt* v_rb = ConstantInt::get(ty_i32, _rb);
-
-				uint32_t _oa = gen_random_int<uint32_t>(0, -1);
-				uint32_t _ob = gen_random_int<uint32_t>(0, -1);
-				uint32_t _oc = gen_random_int<uint32_t>(0, -1);
+				uint32_t val_opaque_1 = gen_random_int<uint32_t>(MAX_UINT16, MAX_UINT32);
+				uint32_t val_opaque_2 = gen_random_int<uint32_t>(MAX_UINT16, MAX_UINT32);
+				uint32_t val_opaque_3 = gen_random_int<uint32_t>(MAX_UINT16, MAX_UINT32);
 
 				// Push the opaque values
 
-				auto itrs_v_oa = opaque::opaque_by_user_shared_data(mod, _oa, 32);
-				instr_out.insert(instr_out.end(), itrs_v_oa.begin(), itrs_v_oa.end());
-				Instruction* v_oa = *(instr_out.end() - 1);
+				auto itrs_opaque_1 = opaque::opaque_by_user_shared_data(mod, val_opaque_1, 32);
+				auto itrs_opaque_2 = opaque::opaque_by_user_shared_data(mod, val_opaque_2, 32);
+				auto itrs_opaque_3 = opaque::opaque_by_user_shared_data(mod, val_opaque_3, 32);
 
-				auto itrs_v_ob = opaque::opaque_by_user_shared_data(mod, _ob, 32);
-				instr_out.insert(instr_out.end(), itrs_v_ob.begin(), itrs_v_ob.end());
-				Instruction* v_ob = *(instr_out.end() - 1);
+				std::vector<Value*> vals_opaque_1(itrs_opaque_1.begin(), itrs_opaque_1.end());
+				std::vector<Value*> vals_opaque_2(itrs_opaque_2.begin(), itrs_opaque_2.end());
+				std::vector<Value*> vals_opaque_3(itrs_opaque_3.begin(), itrs_opaque_3.end());
 
-				auto itrs_v_oc = opaque::opaque_by_user_shared_data(mod, _oc, 32);
-				instr_out.insert(instr_out.end(), itrs_v_oc.begin(), itrs_v_oc.end());
-				Instruction* v_oc = *(instr_out.end() - 1);
+				insval_t opaque_1 = { vals_opaque_1, val_opaque_1 };
+				insval_t opaque_2 = { vals_opaque_2, val_opaque_2 };
+				insval_t opaque_3 = { vals_opaque_3, val_opaque_3 };
 
-				// ((((_rb ^ _oc) + _ob) | (((_ra & _oa) << (_rb >> _oc)) ^ _oc)) ^ KVAL)
+				std::vector<insval_t> opaque_vals = { opaque_1, opaque_2, opaque_3 };
 
-				uint32_t _kval = (((_rb ^ _oc) + _ob) | (((_ra & _oa) << (_rb >> _oc)) ^ _oc)) ^ i32_str;
+				insval_t insval_eq = generate_equation<uint32_t>(mod, opaque_vals, 30);
+				auto& insts_eq = insval_eq.first;
 
-				ConstantInt* v_kval = ConstantInt::get(ty_i32, _kval);
+				instr_out.insert(
+					instr_out.end(),
+					reinterpret_cast<Instruction**>(&*insts_eq.begin()),
+					reinterpret_cast<Instruction**>(&*insts_eq.end()));
 
-				Instruction* v_eq1 = BinaryOperator::CreateAnd(v_ra, v_oa);
-				Instruction* v_eq2 = BinaryOperator::CreateLShr(v_rb, v_oc);
-				Instruction* v_eq3 = BinaryOperator::CreateShl(v_eq1, v_eq2);
-				Instruction* v_eq4 = BinaryOperator::CreateXor(v_eq3, v_oc);
-				Instruction* v_eq5 = BinaryOperator::CreateXor(v_rb, v_oc);
-				Instruction* v_eq6 = BinaryOperator::CreateAdd(v_eq5, v_ob);
-				Instruction* v_eq7 = BinaryOperator::CreateOr(v_eq4, v_eq6);
-				Instruction* v_str = BinaryOperator::CreateXor(v_eq7, v_kval);
+				const uint32_t val_kval = i32_str ^ static_cast<uint32_t>(insval_eq.second);
 
-				std::vector<Instruction*> itrs_math = {
-					v_eq1, v_eq2, v_eq3, v_eq4,
-					v_eq5, v_eq6, v_eq7, v_str
-				};
+				Instruction* v_str = BinaryOperator::CreateXor(
+					*(instr_out.end() - 1),
+					ConstantInt::get(ty_i32, val_kval));
 
-				instr_out.insert(instr_out.end(), itrs_math.begin(), itrs_math.end());
+				instr_out.push_back(v_str);
 
 				size_t offset = static_cast<size_t>(str_begin - str.bytes_begin());
 
@@ -403,51 +402,41 @@ namespace math {
 
 				const uint16_t i16_str = *reinterpret_cast<const uint16_t*>(str_begin);
 
-				uint16_t _ra = gen_random_int<uint16_t>(0, -1);
-				uint16_t _rb = gen_random_int<uint16_t>(0, -1);
-
-				ConstantInt* v_ra = ConstantInt::get(ty_i16, _ra);
-				ConstantInt* v_rb = ConstantInt::get(ty_i16, _rb);
-
-				uint16_t _oa = gen_random_int<uint16_t>(0, -1);
-				uint16_t _ob = gen_random_int<uint16_t>(0, -1);
-				uint16_t _oc = gen_random_int<uint16_t>(0, -1);
+				uint16_t val_opaque_1 = gen_random_int<uint16_t>(MAX_UINT8, MAX_UINT16);
+				uint16_t val_opaque_2 = gen_random_int<uint16_t>(MAX_UINT8, MAX_UINT16);
+				uint16_t val_opaque_3 = gen_random_int<uint16_t>(MAX_UINT8, MAX_UINT16);
 
 				// Push the opaque values
 
-				auto itrs_v_oa = opaque::opaque_by_user_shared_data(mod, _oa, 16);
-				instr_out.insert(instr_out.end(), itrs_v_oa.begin(), itrs_v_oa.end());
-				Instruction* v_oa = *(instr_out.end() - 1);
+				auto itrs_opaque_1 = opaque::opaque_by_user_shared_data(mod, val_opaque_1, 16);
+				auto itrs_opaque_2 = opaque::opaque_by_user_shared_data(mod, val_opaque_2, 16);
+				auto itrs_opaque_3 = opaque::opaque_by_user_shared_data(mod, val_opaque_3, 16);
 
-				auto itrs_v_ob = opaque::opaque_by_user_shared_data(mod, _ob, 16);
-				instr_out.insert(instr_out.end(), itrs_v_ob.begin(), itrs_v_ob.end());
-				Instruction* v_ob = *(instr_out.end() - 1);
+				std::vector<Value*> vals_opaque_1(itrs_opaque_1.begin(), itrs_opaque_1.end());
+				std::vector<Value*> vals_opaque_2(itrs_opaque_2.begin(), itrs_opaque_2.end());
+				std::vector<Value*> vals_opaque_3(itrs_opaque_3.begin(), itrs_opaque_3.end());
 
-				auto itrs_v_oc = opaque::opaque_by_user_shared_data(mod, _oc, 16);
-				instr_out.insert(instr_out.end(), itrs_v_oc.begin(), itrs_v_oc.end());
-				Instruction* v_oc = *(instr_out.end() - 1);
+				insval_t opaque_1 = { vals_opaque_1, val_opaque_1 };
+				insval_t opaque_2 = { vals_opaque_2, val_opaque_2 };
+				insval_t opaque_3 = { vals_opaque_3, val_opaque_3 };
 
-				// ((((_rb ^ _oc) + _ob) | (((_ra & _oa) << (_rb >> _oc)) ^ _oc)) ^ KVAL)
+				std::vector<insval_t> opaque_vals = { opaque_1, opaque_2, opaque_3 };
 
-				uint16_t _kval = (((_rb ^ _oc) + _ob) | (((_ra & _oa) << (_rb >> _oc)) ^ _oc)) ^ i16_str;
+				insval_t insval_eq = generate_equation<uint16_t>(mod, opaque_vals, 30);
+				auto& insts_eq = insval_eq.first;
 
-				ConstantInt* v_kval = ConstantInt::get(ty_i16, _kval);
+				instr_out.insert(
+					instr_out.end(),
+					reinterpret_cast<Instruction**>(&*insts_eq.begin()),
+					reinterpret_cast<Instruction**>(&*insts_eq.end()));
 
-				Instruction* v_eq1 = BinaryOperator::CreateAnd(v_ra, v_oa);
-				Instruction* v_eq2 = BinaryOperator::CreateLShr(v_rb, v_oc);
-				Instruction* v_eq3 = BinaryOperator::CreateShl(v_eq1, v_eq2);
-				Instruction* v_eq4 = BinaryOperator::CreateXor(v_eq3, v_oc);
-				Instruction* v_eq5 = BinaryOperator::CreateXor(v_rb, v_oc);
-				Instruction* v_eq6 = BinaryOperator::CreateAdd(v_eq5, v_ob);
-				Instruction* v_eq7 = BinaryOperator::CreateOr(v_eq4, v_eq6);
-				Instruction* v_str = BinaryOperator::CreateXor(v_eq7, v_kval);
+				const uint16_t val_kval = i16_str ^ static_cast<uint16_t>(insval_eq.second);
 
-				std::vector<Instruction*> itrs_math = {
-					v_eq1, v_eq2, v_eq3, v_eq4,
-					v_eq5, v_eq6, v_eq7, v_str
-				};
+				Instruction* v_str = BinaryOperator::CreateXor(
+					*(instr_out.end() - 1),
+					ConstantInt::get(ty_i16, val_kval));
 
-				instr_out.insert(instr_out.end(), itrs_math.begin(), itrs_math.end());
+				instr_out.push_back(v_str);
 
 				size_t offset = static_cast<size_t>(str_begin - str.bytes_begin());
 
@@ -484,51 +473,41 @@ namespace math {
 
 				const uint8_t i8_str = *reinterpret_cast<const uint8_t*>(str_begin);
 
-				uint8_t _ra = gen_random_int<uint8_t>(0, -1);
-				uint8_t _rb = gen_random_int<uint8_t>(0, -1);
-
-				ConstantInt* v_ra = ConstantInt::get(ty_i8, _ra);
-				ConstantInt* v_rb = ConstantInt::get(ty_i8, _rb);
-
-				uint8_t _oa = gen_random_int<uint8_t>(0, -1);
-				uint8_t _ob = gen_random_int<uint8_t>(0, -1);
-				uint8_t _oc = gen_random_int<uint8_t>(0, -1);
+				uint8_t val_opaque_1 = gen_random_int<uint8_t>(0, MAX_UINT8);
+				uint8_t val_opaque_2 = gen_random_int<uint8_t>(0, MAX_UINT8);
+				uint8_t val_opaque_3 = gen_random_int<uint8_t>(0, MAX_UINT8);
 
 				// Push the opaque values
 
-				auto itrs_v_oa = opaque::opaque_by_user_shared_data(mod, _oa, 8);
-				instr_out.insert(instr_out.end(), itrs_v_oa.begin(), itrs_v_oa.end());
-				Instruction* v_oa = *(instr_out.end() - 1);
+				auto itrs_opaque_1 = opaque::opaque_by_user_shared_data(mod, val_opaque_1, 8);
+				auto itrs_opaque_2 = opaque::opaque_by_user_shared_data(mod, val_opaque_2, 8);
+				auto itrs_opaque_3 = opaque::opaque_by_user_shared_data(mod, val_opaque_3, 8);
 
-				auto itrs_v_ob = opaque::opaque_by_user_shared_data(mod, _ob, 8);
-				instr_out.insert(instr_out.end(), itrs_v_ob.begin(), itrs_v_ob.end());
-				Instruction* v_ob = *(instr_out.end() - 1);
+				std::vector<Value*> vals_opaque_1(itrs_opaque_1.begin(), itrs_opaque_1.end());
+				std::vector<Value*> vals_opaque_2(itrs_opaque_2.begin(), itrs_opaque_2.end());
+				std::vector<Value*> vals_opaque_3(itrs_opaque_3.begin(), itrs_opaque_3.end());
 
-				auto itrs_v_oc = opaque::opaque_by_user_shared_data(mod, _oc, 8);
-				instr_out.insert(instr_out.end(), itrs_v_oc.begin(), itrs_v_oc.end());
-				Instruction* v_oc = *(instr_out.end() - 1);
+				insval_t opaque_1 = { vals_opaque_1, val_opaque_1 };
+				insval_t opaque_2 = { vals_opaque_2, val_opaque_2 };
+				insval_t opaque_3 = { vals_opaque_3, val_opaque_3 };
 
-				// ((((_rb ^ _oc) + _ob) | (((_ra & _oa) << (_rb >> _oc)) ^ _oc)) ^ KVAL)
+				std::vector<insval_t> opaque_vals = { opaque_1, opaque_2, opaque_3 };
 
-				uint8_t _kval = (((_rb ^ _oc) + _ob) | (((_ra & _oa) << (_rb >> _oc)) ^ _oc)) ^ i8_str;
+				insval_t insval_eq = generate_equation<uint8_t>(mod, opaque_vals, 30);
+				auto& insts_eq = insval_eq.first;
 
-				ConstantInt* v_kval = ConstantInt::get(ty_i8, _kval);
+				instr_out.insert(
+					instr_out.end(),
+					reinterpret_cast<Instruction**>(&*insts_eq.begin()),
+					reinterpret_cast<Instruction**>(&*insts_eq.end()));
 
-				Instruction* v_eq1 = BinaryOperator::CreateAnd(v_ra, v_oa);
-				Instruction* v_eq2 = BinaryOperator::CreateLShr(v_rb, v_oc);
-				Instruction* v_eq3 = BinaryOperator::CreateShl(v_eq1, v_eq2);
-				Instruction* v_eq4 = BinaryOperator::CreateXor(v_eq3, v_oc);
-				Instruction* v_eq5 = BinaryOperator::CreateXor(v_rb, v_oc);
-				Instruction* v_eq6 = BinaryOperator::CreateAdd(v_eq5, v_ob);
-				Instruction* v_eq7 = BinaryOperator::CreateOr(v_eq4, v_eq6);
-				Instruction* v_str = BinaryOperator::CreateXor(v_eq7, v_kval);
+				const uint8_t val_kval = i8_str ^ static_cast<uint8_t>(insval_eq.second);
 
-				std::vector<Instruction*> itrs_math = {
-					v_eq1, v_eq2, v_eq3, v_eq4,
-					v_eq5, v_eq6, v_eq7, v_str
-				};
+				Instruction* v_str = BinaryOperator::CreateXor(
+					*(instr_out.end() - 1),
+					ConstantInt::get(ty_i8, val_kval));
 
-				instr_out.insert(instr_out.end(), itrs_math.begin(), itrs_math.end());
+				instr_out.push_back(v_str);
 
 				size_t offset = static_cast<size_t>(str_begin - str.bytes_begin());
 

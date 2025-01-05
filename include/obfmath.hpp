@@ -11,7 +11,11 @@ namespace math {
     typedef std::pair<std::vector<llvm::Value*>, uint64_t> insval_t;
 
     /*  */
-    std::vector<llvm::Instruction*> generate_equation(llvm::Module& mod, uint64_t& eq_to_out, std::vector<insval_t>& opaque_vals, size_t num_iters, size_t num_rnd_slots);
+    template <typename T>
+    insval_t generate_equation(
+        llvm::Module& mod,
+        const std::vector<insval_t>& opaque_vals,
+        size_t num_deepness);
 
     /*
     This function creates a bunch of instructions according to the obfuscation of string

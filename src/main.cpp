@@ -1,3 +1,19 @@
+/*
+	Actually, it's all started when I remember my childhood.
+	Life, or living, didn't have a meaning for me.
+	People were doing something as a different kind of masturbating,
+	Nobody else had a really major goal in their lives, except soldiers...
+	I always wanted to work as a security staff for my country, just like what soldiers do.
+	That was the only thing there seems to me, which makes life worth living on it,
+	since I wasn't aware of my childhood.
+	I remember my childhood, I had lots of goals. Lots of promises...
+	Which of them I've reached? Maybe just a few...
+	Let's decide to be a kind of soldier or not to be, after completing those childhood promises.
+	There's no excuse to not work on it, let's start doing something.
+	Your childhood must be your most prior motivation, don't make him disappointed.
+	Only person who's experienced exactly same things as you did, is him...
+*/
+
 #include "llvm/IR/Module.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Pass.h"
@@ -5,10 +21,17 @@
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
+#include <llvm/CodeGen/MachineFunctionPass.h>
+#include <llvm/CodeGen/MachinePassManager.h>
+#include <llvm/CodeGen/MachineBasicBlock.h>
+#include <llvm/CodeGen/MachineInstrBuilder.h>
+#include <llvm/CodeGen/TargetSubtargetInfo.h>
+#include <llvm/CodeGen/TargetInstrInfo.h>
 
 #include "include/encoder.h"
 #include "include/irmanager.h"
 #include "include/obfmath.hpp"
+#include "include/opaque.hpp"
 
 using namespace llvm;
 
@@ -150,15 +173,7 @@ void obfuscate_string_literals(Module& mod) {
 
 			for (Instruction* instr : obf_itrs) {
 
-				BasicBlock* bl_instr = instr_user->getParent();
-
 				instr->insertBefore(instr_user);
-
-			}
-
-			for (auto& use : instr_user->uses()) {
-
-				errs() << *use.get() << "\n";
 
 			}
 
@@ -172,6 +187,90 @@ void obfuscate_string_literals(Module& mod) {
     
 }
 
+void obfuscate_references(Module& mod) {
+
+	auto& ctx = mod.getContext();
+
+	IntegerType* ty_i8 = Type::getInt8Ty(ctx);
+	IntegerType* ty_i32 = Type::getInt32Ty(ctx);
+	IntegerType* ty_i64 = Type::getInt64Ty(ctx);
+
+	auto globs = mod.globals();
+
+	for (auto& glob : globs) {
+
+		for (User::user_iterator g_users = glob.user_begin(); g_users != glob.user_end(); ++g_users) {
+
+			User* g_user = *g_users;
+
+			if (!isa<Instruction>(g_user)) continue;
+
+			Instruction* inst_user = reinterpret_cast<Instruction*>(g_user);
+
+			Constant* inst_base = ConstantExpr::getGetElementPtr(ty_i8, &glob, ConstantInt::get(ty_i32, 0x123456), true, 0x123456);
+
+			std::vector<Instruction*> ins_opq_1 =
+				opaque::opaque_by_user_shared_data(mod, 0x100000, 32);
+
+			math::insval_t insv_opq_1 = { std::vector<Value*>(
+				ins_opq_1.begin(), ins_opq_1.end()
+			), 0x100000 };
+
+			std::vector<Instruction*> ins_opq_2 =
+				opaque::opaque_by_user_shared_data(mod, 0xFFFFFF, 32);
+
+			math::insval_t insv_opq_2 = { std::vector<Value*>(
+				ins_opq_2.begin(), ins_opq_2.end()
+			), 0xFFFFFF };
+
+			math::insval_t insv_eq = math::generate_equation<uint32_t>(
+				mod, { insv_opq_1, insv_opq_2 }, 5);
+			auto& v_ins_eq = insv_eq.first;
+
+			uint32_t gap = 0x123456 - (uint32_t)insv_eq.second;
+			Value* val_gap = ConstantInt::get(ty_i32, gap);
+
+			Instruction* inst_add_gap =
+				BinaryOperator::CreateAdd(*(v_ins_eq.end() - 1), val_gap);
+
+			// inst_add_gap == 0x123456
+
+			Instruction* inst_ptr_to_int = new PtrToIntInst(inst_base, ty_i64);
+
+			Instruction* inst_zext_to_i64 = new ZExtInst(inst_add_gap, ty_i64);
+
+			Instruction* inst_sub_gap =
+				BinaryOperator::CreateSub(inst_ptr_to_int, inst_zext_to_i64);
+
+			Instruction* inst_ptr_new =
+				new IntToPtrInst(inst_sub_gap, ty_i64->getPointerTo());
+
+			std::vector<Instruction*> v_ins_eq_next = {
+				inst_add_gap, inst_ptr_to_int, inst_zext_to_i64,
+				inst_sub_gap, inst_ptr_new
+			};
+
+			v_ins_eq.insert(
+				v_ins_eq.end(),
+				reinterpret_cast<Instruction**>(&*v_ins_eq_next.begin()),
+				reinterpret_cast<Instruction**>(&*v_ins_eq_next.end()));
+
+
+			for (Value* val_inst_eq : v_ins_eq) {
+
+				Instruction* inst_eq = reinterpret_cast<Instruction*>(val_inst_eq);
+
+				inst_eq->insertBefore(inst_user);
+
+			}
+
+			inst_user->replaceUsesOfWith(&glob, *(v_ins_eq.end() - 1));
+
+		}
+
+	}
+
+}
 
 void create_decode_function(Module& mod, Function* &function_out) {
 
@@ -388,6 +487,10 @@ bool runPass(Module &M) {
 
     auto& ctx = M.getContext();
 
+	obfuscate_references(M);
+
+	return false;
+
     // Encode strings
 
 	obfuscate_string_literals(M);
@@ -441,7 +544,8 @@ bool runPass(Module &M) {
 
 }
 
-struct MyPass : PassInfoMixin<MyPass> {
+
+struct IRPass : PassInfoMixin<IRPass> {
     PreservedAnalyses run(Module &M, ModuleAnalysisManager &) {
         if (!runPass(M))
             return PreservedAnalyses::all();
@@ -449,25 +553,105 @@ struct MyPass : PassInfoMixin<MyPass> {
     }
 };
 
+class MIRPass : public MachineFunctionPass {
+
+public:
+
+	static char ID;
+
+	MIRPass() : MachineFunctionPass(ID) {}
+
+	bool runOnMachineFunction(MachineFunction &MF) override {
+
+		errs() << "Running on function: " << MF.getName() << "\n";
+
+		for (auto it_bbl = MF.begin(); it_bbl != MF.end(); ++it_bbl) {
+
+			MachineBasicBlock& bbl = *it_bbl;
+
+			for (auto it_inst = bbl.begin(); it_inst != bbl.end(); ++it_inst) {
+
+				MachineInstr& inst = *it_inst;
+
+				errs() << "Running on instruction: " << inst << "\n";
+
+				auto oprs = inst.operands();
+
+				for (auto it_opr = oprs.begin(); it_opr != oprs.end(); ++it_opr) {
+
+					MachineOperand& opr = *it_opr;
+
+					if (opr.getType() ==
+						MachineOperand::MachineOperandType::MO_GlobalAddress) {
+
+						const TargetSubtargetInfo& subtarget = MF.getSubtarget();
+
+						const TargetInstrInfo* inf_target = subtarget.getInstrInfo();
+
+						const MCInstrDesc& inst_desc = inf_target->get(TargetOpcode::INLINEASM);
+
+						BuildMI(bbl, it_inst, DebugLoc(), inst_desc)
+							.addExternalSymbol("nop")
+							.addImm(1);
+
+					}
+
+				}
+
+			}
+
+		}
+
+		return false;
+
+	}
+
+};
+
+
 } // namespace
 
 /* New PM Registration */
-llvm::PassPluginLibraryInfo getMyPassPluginInfo() {
-    return {LLVM_PLUGIN_API_VERSION, "MyPass", LLVM_VERSION_STRING,
-                    [](PassBuilder &PB) {
-                        PB.registerPipelineParsingCallback(
-                                [](StringRef Name, llvm::ModulePassManager &PM,
-                                     ArrayRef<llvm::PassBuilder::PipelineElement>) {
-                                    if (Name == "obfstrings") {
-                                        PM.addPass(MyPass());
-                                        return true;
-                                    }
-                                    return false;
-                                });
-                    }};
+llvm::PassPluginLibraryInfo getIRPassPluginInfo() {
+    
+	return {
+
+		LLVM_PLUGIN_API_VERSION,
+		"IRPass",
+		LLVM_VERSION_STRING,
+
+		[](PassBuilder &PB) {
+
+			PB.registerPipelineParsingCallback(
+				[](StringRef Name, ModulePassManager &PM,
+					ArrayRef<PassBuilder::PipelineElement>) {
+					
+					if (Name == "obfstrings") {
+						// Run IR pass
+						PM.addPass(IRPass());
+						return true;
+					}
+					
+					return false;
+				
+				});
+
+		}
+
+	};
+
 }
 
+// Register IR Pass
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
 llvmGetPassPluginInfo() {
-    return getMyPassPluginInfo();
+    return getIRPassPluginInfo();
 }
+
+// Register Machine IR Pass
+char MIRPass::ID = 0;
+static RegisterPass<MIRPass> MIRPASS(
+	"wv-mir-pass",
+	"WareVisor Machine IR Pass for MIR-level code obfuscation",
+	false,
+	false);
