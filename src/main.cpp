@@ -207,7 +207,9 @@ void obfuscate_references(Module& mod) {
 
 			Instruction* inst_user = reinterpret_cast<Instruction*>(g_user);
 
-			Constant* inst_base = ConstantExpr::getGetElementPtr(ty_i8, &glob, ConstantInt::get(ty_i32, 0x123456), true, 0x123456);
+			Instruction* inst_base = GetElementPtrInst::Create(
+				ty_i8, &glob,ConstantInt::get(ty_i32, 0x123456),
+				"", inst_user);
 
 			std::vector<Instruction*> ins_opq_1 =
 				opaque::opaque_by_user_shared_data(mod, 0x100000, 32);
