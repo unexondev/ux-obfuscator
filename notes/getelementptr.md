@@ -20,7 +20,7 @@ void callee_function_plain() {
 
 void callee_function_obfuscated() {
 
-    int64_t reference = &important_variable + OFFSET;
+    int64_t* reference = &important_variable + OFFSET;
     reference -= OPAQUE(OFFSET); // Now it's referenced to the important_variable
     
 }
