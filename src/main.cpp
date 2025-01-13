@@ -14,6 +14,8 @@
 	Only person who's experienced exactly same things as you did, is him...
 */
 
+#define GET_INSTRINFO_ENUM
+
 #include "llvm/IR/Module.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Pass.h"
@@ -27,11 +29,13 @@
 #include <llvm/CodeGen/MachineInstrBuilder.h>
 #include <llvm/CodeGen/TargetSubtargetInfo.h>
 #include <llvm/CodeGen/TargetInstrInfo.h>
+#include "X86InstrInfo.inc"
 
 #include "include/encoder.h"
 #include "include/irmanager.h"
 #include "include/obfmath.hpp"
 #include "include/opaque.hpp"
+
 
 using namespace llvm;
 
@@ -575,30 +579,64 @@ public:
 
 				MachineInstr& inst = *it_inst;
 
-				errs() << "Running on instruction: " << inst << "\n";
+				if (inst.getOpcode() == X86::MOV64ri) {
 
-				auto oprs = inst.operands();
+					/* getOperand(0) yields the return vreg */
+					Register reg_addr = inst.getOperand(0).getReg();
 
-				for (auto it_opr = oprs.begin(); it_opr != oprs.end(); ++it_opr) {
+					auto n_it_inst = it_inst;
+					for (; n_it_inst != bbl.end(); ++n_it_inst) {
 
-					MachineOperand& opr = *it_opr;
+						MachineInstr& n_inst = *n_it_inst;
 
-					if (opr.getType() ==
-						MachineOperand::MachineOperandType::MO_GlobalAddress) {
+						bool defs_reg_addr = n_inst.definesRegister(reg_addr, nullptr);
 
-						const TargetSubtargetInfo& subtarget = MF.getSubtarget();
+						errs() << "Defines: " << defs_reg_addr << "\n";
 
-						const TargetInstrInfo* inf_target = subtarget.getInstrInfo();
+						continue;
 
-						const MCInstrDesc& inst_desc = inf_target->get(TargetOpcode::INLINEASM);
+						for (size_t i = 0; i < n_inst.getNumOperands(); ++i) {
 
-						BuildMI(bbl, it_inst, DebugLoc(), inst_desc)
-							.addExternalSymbol("nop")
-							.addImm(1);
+							MachineOperand& op = n_inst.getOperand(i);
 
+							continue;
+
+							if (!op.isReg()) continue;
+
+							if (op.getReg() == reg_addr) {
+
+								if (n_inst.getOpcode() == X86::ADD64ri32
+									&& i == 1) {
+									/* valid pattern */
+									
+									errs() << "Valid!!!@@@###\n";
+									errs() << "Inst: " << inst;
+
+									for (auto it_use = inst.uses().begin();
+										it_use != inst.uses().end();
+										++it_use) {
+
+										MachineOperand& op_use = *it_use;
+
+										errs() << op_use << "\n";
+
+									}
+
+								}
+
+								else {
+
+									
+
+								}
+
+							}
+
+						}
+					
 					}
-
-				}
+				
+				} 
 
 			}
 
