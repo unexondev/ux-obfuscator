@@ -35,7 +35,7 @@ if [ $ERRCODE -ne 0 ]; then
 
 fi
 
-LIBBUILDDIR="/home/cbsahmet/Dev/llvm/llvm-project/build"
+LIBBUILDDIR="/home/unex/Dev/llvm-project/build"
 
 ninja -C $LIBBUILDDIR UX-Obfuscator
 
@@ -90,6 +90,6 @@ if [ $ERRCODE -ne 0 ]; then
 
 fi
 
-echo "All outputs are generated successfully."
+echo "Main tests are performed successfully."
 
 exit 0

@@ -15,6 +15,7 @@
 */
 
 #define GET_INSTRINFO_ENUM
+#define GET_INSTRINFO_MC_DESC
 
 #include "llvm/IR/Module.h"
 #include "llvm/IR/LegacyPassManager.h"
@@ -584,57 +585,43 @@ public:
 					/* getOperand(0) yields the return vreg */
 					Register reg_addr = inst.getOperand(0).getReg();
 
+					bool reg_no_use = true;
+
 					auto n_it_inst = it_inst;
-					for (; n_it_inst != bbl.end(); ++n_it_inst) {
+					for (++n_it_inst; n_it_inst != bbl.end(); ++n_it_inst) {
 
 						MachineInstr& n_inst = *n_it_inst;
 
-						bool defs_reg_addr = n_inst.definesRegister(reg_addr, nullptr);
+						if (n_inst.modifiesRegister(reg_addr, nullptr)) break;
 
-						errs() << "Defines: " << defs_reg_addr << "\n";
+						if (n_inst.readsRegister(reg_addr, nullptr)) {
 
-						continue;
+							MachineOperand& op_dest = n_inst.getOperand(1);
 
-						for (size_t i = 0; i < n_inst.getNumOperands(); ++i) {
+							// If pattern matches, then it's not considered a use
+							if (n_inst.getOpcode() == X86::ADD64ri32
+								&& op_dest.isReg() && op_dest.getReg() == reg_addr) {
 
-							MachineOperand& op = n_inst.getOperand(i);
+								MIMetadata mi_md = MIMetadata(DebugLoc());
 
-							continue;
+								MCInstrDesc mc_idesc = X86Descs.Insts[X86::ADD64ri32];
 
-							if (!op.isReg()) continue;
+								// BuildMI(MF, mi_md, mc_idesc, n_inst.getOperand(0).getReg());
 
-							if (op.getReg() == reg_addr) {
+								// MF.deleteMachineInstr(&n_inst);
 
-								if (n_inst.getOpcode() == X86::ADD64ri32
-									&& i == 1) {
-									/* valid pattern */
-									
-									errs() << "Valid!!!@@@###\n";
-									errs() << "Inst: " << inst;
+								continue;
 
-									for (auto it_use = inst.uses().begin();
-										it_use != inst.uses().end();
-										++it_use) {
+							} 
 
-										MachineOperand& op_use = *it_use;
-
-										errs() << op_use << "\n";
-
-									}
-
-								}
-
-								else {
-
-									
-
-								}
-
-							}
+							// Otherwise, it's an external use and base instruction can't be deleted (base instr : MOV64ri %addr)
+							reg_no_use = false;
 
 						}
-					
+
 					}
+
+					// to-do: remove base 'here' if reg is not used
 				
 				} 
 
