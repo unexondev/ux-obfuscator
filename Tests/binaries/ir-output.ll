@@ -14,22 +14,13 @@ target triple = "x86_64-pc-linux-gnu"
 ; Function Attrs: mustprogress noinline optnone uwtable
 define dso_local noundef ptr @_Z11str_printerv() #0 {
   %1 = call i32 (ptr, ...) @printf(ptr noundef @.str)
-  %2 = call noundef ptr @_ZL8_obf_strPKc(ptr noundef @.str.1)
-  ret ptr %2
+  ret ptr @.str.1
 }
 
 declare i32 @printf(ptr noundef, ...) #1
 
-; Function Attrs: mustprogress noinline nounwind optnone uwtable
-define internal noundef ptr @_ZL8_obf_strPKc(ptr noundef %0) #2 section "._obf_str" {
-  %2 = alloca ptr, align 8
-  store ptr %0, ptr %2, align 8
-  %3 = load ptr, ptr %2, align 8
-  ret ptr %3
-}
-
 ; Function Attrs: mustprogress noinline norecurse optnone uwtable
-define dso_local noundef i32 @main() #3 {
+define dso_local noundef i32 @main() #2 {
   %1 = alloca %struct.StringContainer, align 8
   %2 = alloca %struct.StringContainer, align 8
   %3 = alloca ptr, align 8
@@ -59,10 +50,18 @@ define dso_local noundef i32 @main() #3 {
   ret i32 0
 }
 
+; Function Attrs: mustprogress noinline nounwind optnone uwtable
+define internal noundef ptr @_ZL8_obf_strPKc(ptr noundef %0) #3 section "._obf_str" {
+  %2 = alloca ptr, align 8
+  store ptr %0, ptr %2, align 8
+  %3 = load ptr, ptr %2, align 8
+  ret ptr %3
+}
+
 attributes #0 = { mustprogress noinline optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
 attributes #1 = { "frame-pointer"="all" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #2 = { mustprogress noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #3 = { mustprogress noinline norecurse optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #2 = { mustprogress noinline norecurse optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #3 = { mustprogress noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
 
 !llvm.module.flags = !{!0, !1, !2, !3, !4}
 !llvm.ident = !{!5}

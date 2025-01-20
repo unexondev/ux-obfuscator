@@ -52,7 +52,7 @@ LIBPATH=$LIBBUILDDIR"/lib/UX-Obfuscator.so"
 
 OBFIROUTPUTPATH="./binaries/ir-out-obf.ll"
 
-opt --load-pass-plugin=$LIBPATH $IROUTPUTPATH --passes=$OPTPASSES -S -o $OBFIROUTPUTPATH
+opt -mtriple=x86_64-pc-windows-gnu --load-pass-plugin=$LIBPATH $IROUTPUTPATH --passes=$OPTPASSES -S -o $OBFIROUTPUTPATH
 
 ERRCODE=$?
 if [ $ERRCODE -ne 0 ]; then

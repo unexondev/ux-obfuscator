@@ -13,7 +13,7 @@ const char* str_printer() {
 
 	printf("Gonna let str_printer talk!\n");
 
-	return OBFUSCATE("str_printer: hello world!");
+	return "str_printer: hello world!";
 
 }
 
