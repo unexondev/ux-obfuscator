@@ -22,7 +22,7 @@ LIBPATH=$LIBBUILDDIR"/lib/UX-Obfuscator.so"
 
 OBFMIROUTPUTPATH="./binaries/mir-out-obf.mir"
 
-llc -mtriple=x86_64-pc-windows-gnu --stop-after="x86-isel" $OBFIRINPUTPATH -o $OBFMIROUTPUTPATH
+llc -mtriple=x86_64-pc-windows-msvc --stop-after="x86-isel" $OBFIRINPUTPATH -o $OBFMIROUTPUTPATH
 
 ERRCODE=$?
 if [ $ERRCODE -ne 0 ]; then
@@ -35,7 +35,7 @@ fi
 
 OBFMIRNEXTOUTPUTPATH="./binaries/mir-out-obf-next.mir"
 
-llc -mtriple=x86_64-pc-windows-gnu --load=$LIBPATH --run-pass=$LLCPASSES $OBFMIROUTPUTPATH -o $OBFMIRNEXTOUTPUTPATH
+llc -mtriple=x86_64-pc-windows-msvc --load=$LIBPATH --run-pass=$LLCPASSES $OBFMIROUTPUTPATH -o $OBFMIRNEXTOUTPUTPATH
 
 ERRCODE=$?
 if [ $ERRCODE -ne 0 ]; then
@@ -49,8 +49,8 @@ fi
 OBFFINALASMOUTPUTPATH="./binaries/final-asm-out-obf.asm"
 OBFFINALOBJOUTPUTPATH="./binaries/final-obj-out-obf.o"
 
-llc -mtriple=x86_64-pc-windows-gnu --start-after="x86-isel" --x86-asm-syntax=intel $OBFMIRNEXTOUTPUTPATH -o $OBFFINALASMOUTPUTPATH
-llc -mtriple=x86_64-pc-windows-gnu --start-after="x86-isel" --filetype=obj $OBFMIRNEXTOUTPUTPATH -o $OBFFINALOBJOUTPUTPATH
+llc -mtriple=x86_64-pc-windows-msvc --start-after="x86-isel" --x86-asm-syntax=intel $OBFMIRNEXTOUTPUTPATH -o $OBFFINALASMOUTPUTPATH
+llc -mtriple=x86_64-pc-windows-msvc --start-after="x86-isel" --filetype=obj $OBFMIRNEXTOUTPUTPATH -o $OBFFINALOBJOUTPUTPATH
 
 echo "LLC tests are performed successfully."
 

@@ -26,35 +26,32 @@ _Z11str_printerv:                       # @_Z11str_printerv
 	lea	rax, [rip + .L.str]
 	add	rax, 1193046
 	mov	ecx, 2147352576
-	mov	ecx, dword ptr [rcx]
-	shr	ecx, 8
-	and	ecx, 255
-	add	ecx, 1048576
-	mov	r9d, 4253911330
-	sub	r9d, ecx
+	mov	edx, dword ptr [rcx]
+	shr	edx, 8
+	and	edx, 255
+	add	edx, 1048576
+	add	edx, 931563912
 	mov	ecx, 2147352576
 	mov	ecx, dword ptr [rcx]
 	shr	ecx, 8
 	and	ecx, 255
 	add	ecx, 16777215
-	imul	edx, ecx, 1854432346
+	add	ecx, 19771773
+	mov	r8d, ecx
+	imul	r8d, edx
+	add	edx, ecx
 	mov	ecx, edx
                                         # kill: def $cl killed $ecx
-	mov	r8d, r9d
-	shl	r8d, cl
-	or	edx, r9d
-	mov	ecx, r8d
-                                        # kill: def $cl killed $ecx
-	shl	edx, cl
-	xor	r8d, -1
-	mov	r9d, edx
-	imul	r9d, r8d
-	mov	ecx, edx
-                                        # kill: def $cl killed $ecx
-	shl	r8d, cl
-	or	r9d, r8d
-	add	r9d, -7221252
+	mov	r9d, r8d
+	shr	r9d, cl
+	sub	edx, r8d
 	mov	ecx, r9d
+	imul	ecx, edx
+	or	edx, r9d
+                                        # kill: def $cl killed $ecx
+	shr	edx, cl
+	add	edx, 1193046
+	mov	ecx, edx
 	sub	rax, rcx
 	mov	rcx, rax
 	call	printf
@@ -65,33 +62,23 @@ _Z11str_printerv:                       # @_Z11str_printerv
 	shr	edx, 8
 	and	edx, 255
 	add	edx, 1048576
-	add	edx, 480956998
+	add	edx, 585795882
 	mov	ecx, 2147352576
 	mov	ecx, dword ptr [rcx]
 	shr	ecx, 8
 	and	ecx, 255
 	add	ecx, 16777215
-	mov	r8d, 2339431396
+	mov	r8d, 2437021883
                                         # kill: def $cl killed $ecx
 	shl	r8d, cl
-	mov	ecx, r8d
-                                        # kill: def $cl killed $ecx
-	mov	r9d, edx
-	shl	r9d, cl
+	xor	edx, r8d
+	xor	edx, -1
 	mov	ecx, edx
-                                        # kill: def $cl killed $ecx
-	shr	r8d, cl
-	mov	edx, r8d
-	sub	edx, r9d
-	sub	r9d, r8d
-	mov	r8d, edx
-	xor	r8d, r9d
-	mov	ecx, r9d
-                                        # kill: def $cl killed $ecx
-	shl	edx, cl
-	add	edx, r8d
-	add	edx, 784778714
-	mov	ecx, edx
+	xor	ecx, -1
+	xor	edx, -1
+	xor	ecx, edx
+	add	ecx, 1193046
+	mov	ecx, ecx
 	sub	rax, rcx
 	add	rsp, 32
 	pop	rbp
@@ -114,353 +101,363 @@ main:                                   # @main
 	lea	rbp, [rsp + 112]
 	.seh_setframe rbp, 112
 	.seh_endprologue
-	call	__main
 	mov	dword ptr [rbp - 72], 300
 	mov	eax, 2147352576
 	mov	eax, dword ptr [rax]
 	shr	eax, 8
 	and	eax, 255
 	mov	ecx, eax
-	movabs	rax, 3959014977801407588
+	movabs	rax, 6525457751900296980
 	add	rcx, rax
-	movabs	r8, -3577007853719165764
-                                        # kill: def $cl killed $rcx
-	shl	r8, cl
+	movabs	rax, -3299414270133141545
+	or	rcx, rax
 	mov	eax, 2147352576
 	mov	eax, dword ptr [rax]
 	shr	eax, 8
 	and	eax, 255
-	mov	ecx, eax
-	movabs	rax, 2108477156553132405
-	add	rcx, rax
-	movabs	rax, -631500688666148648
-                                        # kill: def $cl killed $rcx
-	shl	rax, cl
-	mov	r9, rax
-	xor	r9, r8
-	mov	rdx, r8
-	xor	rdx, rax
-	add	r8, rax
-	mov	rax, r9
-	xor	rax, -1
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shr	r9, cl
-	or	r8, rdx
-	mov	r10, rax
-	or	r10, r9
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	mov	rdx, r8
-	shr	rdx, cl
-	imul	rax, r8
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	mov	r8, r10
-	shr	r8, cl
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shr	r10, cl
+	mov	eax, eax
+	movabs	rdx, 2571792975541324576
 	add	rax, rdx
-	xor	r8, -1
-	mov	r9, rax
-	or	r9, r10
-	xor	rax, -1
-	xor	rax, r8
-	mov	rdx, r8
-	imul	rdx, r9
-	add	r9, r8
-	mov	r8, r9
-	sub	r8, rax
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shl	r9, cl
+	movabs	rdx, -6391512435329018109
 	add	rax, rdx
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	mov	r10, rax
-	shl	r10, cl
-	xor	rax, -1
-	or	r8, r9
-	mov	rdx, r8
-	sub	rdx, r10
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	mov	r8, r10
-	shr	r8, cl
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	shr	r10, cl
-	imul	rdx, r10
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	mov	r9, r10
-	shr	r9, cl
-	imul	r8, r10
-	mov	rax, r8
-	or	rax, rdx
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	mov	r8, rdx
-	shl	r8, cl
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shl	r9, cl
-	xor	r9, -1
-	mov	r10, r8
-	or	r10, rax
-	or	rax, r8
-	mov	rdx, r10
-	or	rdx, r9
-	mov	rcx, r9
-                                        # kill: def $cl killed $rcx
-	mov	r8, r10
-	shr	r8, cl
-	or	rax, r10
-	mov	r9, r8
-	or	r9, rax
-	add	rax, r8
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	shl	rdx, cl
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shr	r9, cl
-	xor	rax, rdx
-	mov	rdx, r9
-	add	rdx, rax
-	mov	rcx, r9
-	sub	rcx, rax
-	imul	rax, r9
-	or	rdx, rcx
-	imul	rax, rcx
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	mov	r8, rax
-	shl	r8, cl
-	xor	rax, rdx
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	mov	rdx, r8
-	shr	rdx, cl
-	mov	rcx, r8
-	or	rcx, rax
-	or	r8, rax
-	mov	r9, rdx
-	sub	r9, rcx
-	mov	r10, rdx
-	xor	r10, r8
-	imul	rdx, rcx
-	mov	rax, r9
-	imul	rax, r10
-	mov	rcx, r10
-	imul	rcx, rdx
-	add	r9, r10
-	mov	rdx, r9
-	sub	rdx, rax
-	or	rax, rcx
-	sub	rcx, r9
-	mov	r9, rdx
-	xor	r9, -1
-	imul	rax, rdx
-                                        # kill: def $cl killed $rcx
-	shl	rdx, cl
-	mov	r10, rax
-	imul	r10, rdx
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	shl	rdx, cl
-	sub	r9, rax
-	mov	r8, rdx
-	xor	r8, -1
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	mov	rax, r9
-	shl	rax, cl
-	or	r10, r9
-	mov	rdx, rax
-	xor	rdx, -1
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	shl	rax, cl
-	imul	r8, r10
-	or	rax, rdx
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	shr	rdx, cl
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	mov	r8, rdx
-	shl	r8, cl
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shl	rax, cl
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	shr	rax, cl
-	movabs	rcx, -1192493519093997193
-	xor	rax, rcx
-	mov	qword ptr [rbp - 21], rax
-	mov	eax, 2147352576
-	mov	ecx, dword ptr [rax]
-	shr	ecx, 8
-	and	ecx, 255
-	add	ecx, 62108
-	mov	ax, 31372
-                                        # kill: def $cx killed $cx killed $ecx
-                                        # kill: def $cl killed $cx
-	shr	ax, cl
-	mov	ecx, 2147352576
-	mov	ecx, dword ptr [rcx]
-	shr	ecx, 8
-	and	ecx, 255
-	add	ecx, 39983
-	or	cx, 28331
 	mov	edx, 2147352576
 	mov	edx, dword ptr [rdx]
 	shr	edx, 8
 	and	edx, 255
-	add	edx, 41039
-	xor	dx, 58560
-	mov	r8w, ax
-	sub	r8w, cx
-                                        # kill: def $cx killed $cx killed $ecx
-                                        # kill: def $cl killed $cx
-	mov	r9w, ax
-	shr	r9w, cl
-	xor	ax, dx
-	mov	cx, r9w
-	imul	cx, ax
-	mov	dx, r8w
-	imul	dx, r9w
-	or	r8w, ax
-	mov	ax, cx
-	or	ax, dx
-                                        # kill: def $cl killed $cx
-	shr	r8w, cl
-	mov	dx, r8w
-	xor	dx, -1
-	sub	ax, r8w
-	mov	cx, dx
-                                        # kill: def $cl killed $cx
-	mov	r8w, ax
-	shl	r8w, cl
-	add	ax, dx
+	mov	edx, edx
+	movabs	r8, -6969396409496038530
+	add	rdx, r8
+	movabs	r8, -4442059363203823428
+	sub	r8, rdx
+	mov	rdx, rax
+	xor	rdx, -1
+	xor	r8, rax
+                                        # kill: def $cl killed $rcx
+	shl	rax, cl
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	r9, r8
+	shr	r9, cl
+	mov	rcx, r8
+                                        # kill: def $cl killed $rcx
+	shr	rax, cl
+	or	rdx, r8
+	mov	r8, rdx
+	xor	r8, r9
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	shl	r9, cl
+	xor	rdx, rax
+	mov	rax, r8
+	sub	rax, rdx
+	mov	r10, r9
+	add	r10, rdx
+	mov	rcx, r8
+                                        # kill: def $cl killed $rcx
+	shr	r9, cl
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	r8, r9
+	shl	r8, cl
+	sub	r10, rax
+	add	rax, r9
+	mov	rdx, r10
+	xor	rdx, -1
+	mov	r9, r8
+	imul	r9, r10
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	shl	r8, cl
+	mov	r10, r8
+	xor	r10, r9
+	mov	rax, r9
+	or	rax, r8
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	shl	r9, cl
+	mov	rcx, rax
+	xor	rcx, -1
+	mov	rdx, r10
+	or	rdx, r9
+	add	rax, r10
+	mov	r9, rcx
+	imul	r9, rax
+	or	rax, rcx
+	or	rdx, rcx
+	mov	r8, rdx
+	xor	r8, r9
+	xor	rax, rdx
+	imul	r8, rax
+	xor	rax, -1
+	mov	rdx, rax
+	xor	rdx, r8
+	mov	rcx, r8
+                                        # kill: def $cl killed $rcx
+	mov	r9, rax
+	shl	r9, cl
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	shl	r8, cl
+	mov	rcx, r9
+	xor	rcx, r8
+	or	rdx, r9
+	imul	r9, r8
+	mov	rax, rcx
+	add	rax, r9
+	xor	rdx, rcx
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	mov	r8, rax
+	shr	r8, cl
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	mov	r9, rax
+	shl	r9, cl
+	add	rax, rdx
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	rdx, r8
+	shr	rdx, cl
+	mov	rcx, r9
+	xor	rcx, r8
+	imul	r8, r9
+	mov	rax, rcx
+	add	rax, r8
+	mov	r9, rcx
+	xor	r9, rdx
+	or	rcx, r8
+	mov	rdx, r9
+	imul	rdx, rcx
+	or	rcx, r9
+	xor	rax, r9
+	mov	r8, rax
+	imul	r8, rcx
+	mov	r9, rax
+	xor	r9, rdx
+	imul	rax, rdx
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	rdx, r9
+	shr	rdx, cl
+	mov	rcx, r8
+                                        # kill: def $cl killed $rcx
+	shr	r9, cl
+	xor	rax, -1
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	r8, rdx
+	shl	r8, cl
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	shr	rax, cl
+	mov	rcx, r9
+                                        # kill: def $cl killed $rcx
+	shl	rdx, cl
+	mov	rcx, r8
+	xor	rcx, rdx
+	mov	r9, rax
+	xor	r9, r8
+	or	rdx, rax
+	mov	rax, rdx
+	or	rax, r9
+                                        # kill: def $cl killed $rcx
+	shl	rdx, cl
+	mov	r9, rdx
+	xor	r9, rax
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	r8, rdx
+	shl	r8, cl
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	shr	rax, cl
+	mov	rdx, rax
+	or	rdx, r8
+	mov	rcx, r8
+                                        # kill: def $cl killed $rcx
+	mov	r8, r9
+	shl	r8, cl
+	imul	r9, rax
+	xor	r9, r8
+	mov	rax, r8
+	xor	rax, rdx
+	or	r8, rdx
+	mov	rcx, rax
+	xor	rcx, r9
+	sub	rax, r8
+                                        # kill: def $cl killed $rcx
+	shr	rax, cl
+	xor	rax, -1
+	movabs	rcx, -8030878517578014345
+	xor	rax, rcx
+	mov	qword ptr [rbp - 21], rax
+	mov	eax, 2147352576
+	mov	eax, dword ptr [rax]
+	shr	eax, 8
+	and	eax, 255
+	add	eax, 28492
+	or	ax, 22299
+	mov	ecx, 2147352576
+	mov	r8d, dword ptr [rcx]
+	shr	r8d, 8
+	and	r8d, 255
+	add	r8d, 20632
+	add	r8w, 41375
+	mov	ecx, 2147352576
+	mov	r9d, dword ptr [rcx]
+	shr	r9d, 8
+	and	r9d, 255
+	add	r9d, 33642
+	or	r9w, 6778
 	mov	cx, ax
                                         # kill: def $cl killed $cx
-	mov	dx, r8w
+	mov	dx, r9w
 	shr	dx, cl
-	mov	cx, r8w
-	or	cx, ax
-	xor	ax, r8w
-	or	dx, ax
-	imul	ax, cx
+	sub	r9w, r8w
+	or	ax, r8w
+	mov	cx, dx
+	or	cx, r9w
+	mov	r8w, ax
+	add	r8w, r9w
+	sub	dx, ax
+	mov	r9w, r8w
+	sub	r9w, cx
+	xor	dx, -1
+                                        # kill: def $cl killed $cx
+	shr	r8w, cl
+	mov	ax, r9w
+	xor	ax, dx
+	mov	cx, dx
+                                        # kill: def $cl killed $cx
+	mov	dx, r9w
+	shr	dx, cl
+	add	r8w, r9w
+	mov	r9w, ax
+	imul	r9w, r8w
+	mov	cx, ax
+	add	cx, dx
+	sub	ax, dx
+	mov	dx, r9w
+	imul	dx, ax
+                                        # kill: def $cl killed $cx
+	mov	r8w, r9w
+	shr	r8w, cl
+	add	ax, r9w
 	mov	cx, ax
                                         # kill: def $cl killed $cx
 	mov	r9w, dx
 	shl	r9w, cl
-	xor	dx, ax
+	xor	ax, r8w
 	mov	cx, dx
                                         # kill: def $cl killed $cx
-	mov	ax, r9w
-	shr	ax, cl
-	xor	r9w, dx
-	mov	dx, ax
-	xor	dx, -1
-	mov	r8w, r9w
-	imul	r8w, ax
-	xor	ax, r9w
-	mov	cx, dx
+	shr	r8w, cl
+	mov	cx, ax
                                         # kill: def $cl killed $cx
-	mov	r9w, r8w
-	shl	r9w, cl
-	or	dx, r8w
+	mov	dx, r9w
+	shr	dx, cl
+	add	r8w, ax
+	mov	cx, r9w
+                                        # kill: def $cl killed $cx
+	shl	ax, cl
+	mov	r9w, ax
+	imul	r9w, dx
 	mov	cx, r8w
                                         # kill: def $cl killed $cx
-	shr	ax, cl
+	mov	r10w, ax
+	shr	r10w, cl
+	imul	ax, dx
 	mov	r8w, r9w
-	add	r8w, ax
-	xor	ax, r9w
-	xor	dx, r9w
-	mov	cx, ax
+	or	r8w, ax
+	sub	r9w, r10w
+	mov	cx, r8w
+	or	cx, r9w
+	mov	ax, r9w
+	add	ax, r8w
+	add	r8w, r9w
                                         # kill: def $cl killed $cx
+	mov	dx, r8w
 	shr	dx, cl
-	xor	ax, r8w
-	mov	cx, ax
-	sub	cx, dx
-	xor	ax, dx
-	mov	dx, ax
-	imul	dx, cx
-	mov	r8w, ax
-	xor	r8w, -1
+	mov	cx, r8w
 	or	cx, ax
-	mov	ax, cx
-	sub	ax, dx
-	mov	r9w, r8w
-	or	r9w, cx
-	imul	cx, r8w
-	sub	r9w, cx
-	mov	dx, cx
-	add	dx, ax
-	add	cx, ax
-	mov	r10w, dx
-	xor	r10w, -1
-	or	cx, dx
-	xor	r9w, -1
-	mov	ax, r10w
+	sub	r8w, ax
+	mov	ax, dx
 	add	ax, cx
-	mov	dx, r9w
-	sub	dx, r10w
-	sub	r10w, r9w
-	mov	cx, dx
+	mov	r9w, cx
+	xor	r9w, dx
                                         # kill: def $cl killed $cx
-	mov	r8w, ax
 	shl	r8w, cl
-	mov	cx, dx
-                                        # kill: def $cl killed $cx
+	add	r8w, ax
 	mov	dx, ax
-	shl	dx, cl
-	add	ax, r10w
+	or	dx, r9w
 	mov	cx, ax
                                         # kill: def $cl killed $cx
-	mov	r9w, r8w
 	shr	r9w, cl
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	shl	r8w, cl
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	shr	dx, cl
-	mov	cx, r9w
-	sub	cx, dx
-	add	r9w, dx
-	xor	r8w, -1
-	imul	r8w, r9w
-	xor	cx, r9w
-	mov	dx, r8w
-	add	dx, cx
-	imul	cx, r8w
-	mov	ax, cx
-	xor	ax, -1
-	mov	r8w, cx
-	imul	r8w, dx
-	xor	cx, -1
-	xor	r8w, ax
-                                        # kill: def $cl killed $cx
-	shr	ax, cl
-	mov	dx, r8w
-	xor	dx, ax
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	shl	r8w, cl
 	mov	cx, dx
                                         # kill: def $cl killed $cx
 	mov	ax, r8w
 	shr	ax, cl
-	sub	dx, r8w
-	add	ax, dx
-	xor	ax, 114
-	mov	word ptr [rbp - 13], ax
+	add	r8w, r9w
+	mov	cx, ax
+	xor	cx, -1
+	sub	ax, r8w
+	mov	dx, cx
+	or	dx, ax
+	mov	r8w, ax
+	xor	r8w, -1
+	or	ax, cx
+	mov	r9w, dx
+	sub	r9w, r8w
+	add	dx, ax
+	add	r8w, ax
+	mov	ax, dx
+	sub	ax, r9w
+	mov	cx, dx
+	imul	cx, r8w
+	add	r9w, dx
+	mov	dx, cx
+	sub	dx, r9w
+                                        # kill: def $cl killed $cx
+	shl	ax, cl
+	mov	r8w, ax
+	imul	r8w, dx
+	mov	r9w, ax
+	xor	r9w, dx
+	add	dx, ax
+	mov	cx, dx
+	xor	cx, -1
+	sub	r9w, r8w
+	imul	dx, r8w
+	mov	r8w, dx
+	xor	r8w, -1
+	imul	dx, cx
+	sub	cx, r9w
+	mov	r9w, cx
+	xor	r9w, -1
+                                        # kill: def $cl killed $cx
+	mov	ax, dx
+	shr	ax, cl
+	xor	dx, r8w
+	mov	cx, dx
+	add	cx, ax
+	mov	r8w, ax
+	imul	r8w, r9w
+	or	ax, dx
+	mov	dx, ax
+	add	dx, cx
+	mov	cx, ax
+                                        # kill: def $cl killed $cx
+	mov	ax, r8w
+	shl	ax, cl
+	xor	r8w, -1
+	mov	cx, r8w
+	or	cx, dx
+	sub	ax, r8w
+	mov	dx, cx
+	or	dx, ax
+	add	ax, cx
+	or	dx, ax
+	xor	dx, -115
+	mov	word ptr [rbp - 13], dx
 	lea	rax, [rbp - 21]
 	mov	qword ptr [rbp - 64], rax
 	mov	dword ptr [rbp - 56], 90000
@@ -468,530 +465,494 @@ main:                                   # @main
 	mov	eax, dword ptr [rax]
 	shr	eax, 8
 	and	eax, 255
-	mov	eax, eax
-	movabs	rcx, 8642094451040635907
-	add	rax, rcx
-	movabs	rcx, -4932778978237615276
-	add	rax, rcx
-	mov	ecx, 2147352576
-	mov	ecx, dword ptr [rcx]
-	shr	ecx, 8
-	and	ecx, 255
-	mov	ecx, ecx
-	movabs	rdx, 4213102019378786811
-	add	rcx, rdx
-	movabs	rdx, -5437585687055331971
-	add	rcx, rdx
-	mov	edx, 2147352576
-	mov	edx, dword ptr [rdx]
-	shr	edx, 8
-	and	edx, 255
-	mov	edx, edx
-	movabs	r8, 5834870247354803871
-	add	rdx, r8
-	movabs	r8, -5000410258946108109
-	or	rdx, r8
-	mov	r8, rcx
-	or	r8, rdx
-	mov	r10, rdx
-	xor	r10, rax
-	sub	rcx, rdx
-	xor	r8, rcx
-	mov	r11, rcx
-	add	r11, r10
-	or	r10, rcx
-	mov	r9, r10
-	xor	r9, -1
-	mov	rcx, r10
-	or	rcx, r8
-	add	r11, r10
-	mov	rax, r9
-	add	rax, rcx
-	mov	rdx, r9
-	sub	rdx, r11
-                                        # kill: def $cl killed $rcx
-	shl	r9, cl
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	mov	r10, r9
-	shr	r10, cl
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	mov	r8, r9
-	shr	r8, cl
-	add	r9, rdx
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	mov	rax, r9
-	shr	rax, cl
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	shr	r10, cl
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	shl	r9, cl
-	mov	rcx, r9
-	sub	rcx, r10
-	mov	rdx, r10
-	or	rdx, r9
-	imul	rax, r10
-	mov	r9, rax
-	xor	r9, rcx
-	xor	rax, rdx
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	mov	rdx, r9
-	shr	rdx, cl
-	mov	r8, rax
-	xor	r8, r9
-	or	rax, r9
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	mov	rdx, rax
-	shl	rdx, cl
-	mov	r9, rax
-	or	r9, r8
-	or	r8, rax
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	mov	r10, rdx
-	shl	r10, cl
-	mov	rax, rdx
-	sub	rax, r9
-	or	r8, rdx
-	mov	r9, rax
-	add	r9, r10
-	mov	rcx, r8
-                                        # kill: def $cl killed $rcx
-	mov	rdx, rax
-	shr	rdx, cl
-	sub	rax, r10
-	mov	r8, rdx
-	xor	r8, -1
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	mov	rdx, rax
-	shr	rdx, cl
-	imul	rax, r9
-	sub	r8, rdx
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shr	rax, cl
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	mov	r9, r8
-	shr	r9, cl
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	mov	rdx, r8
-	shl	rdx, cl
-	sub	rax, r8
-	sub	rax, r9
-	mov	r8, r9
-	add	r8, rdx
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shl	r9, cl
-	mov	rcx, r8
-	or	rcx, rax
-	sub	r9, r8
-	xor	r8, rax
-	mov	rax, r8
-	or	rax, rcx
-	mov	rdx, r9
-	sub	rdx, r8
-                                        # kill: def $cl killed $rcx
-	shr	r9, cl
-	mov	r10, r9
-	sub	r10, rax
-	or	r9, rdx
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	shr	rdx, cl
-	mov	rax, rdx
-	sub	rax, r9
-	mov	r8, rdx
-	imul	r8, r9
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shr	r10, cl
-	imul	rax, r8
-	mov	rdx, r10
-	xor	rdx, -1
-	sub	r8, r10
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	mov	r9, rax
-	shr	r9, cl
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shl	rax, cl
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shl	r8, cl
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	mov	rdx, r9
-	shr	rdx, cl
-	or	rax, r9
-	add	r8, r9
-	xor	r8, -1
-	imul	rax, rdx
-	mov	rdx, r8
-	xor	rdx, rax
-	sub	r8, rax
-	mov	r9, rdx
-	xor	r9, r8
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	mov	rax, r8
-	shl	rax, cl
-	or	rdx, r8
-	mov	r8, r9
-	imul	r8, rax
-	imul	r9, rax
-	mov	rcx, rax
-                                        # kill: def $cl killed $rcx
-	shr	rdx, cl
-	mov	rcx, rdx
-                                        # kill: def $cl killed $rcx
-	shl	r9, cl
-	or	rdx, r8
-	add	r9, rdx
-	movabs	rax, 6236525101748952712
-	xor	r9, rax
-	mov	qword ptr [rbp - 11], r9
+	mov	edx, eax
+	movabs	rax, -4161527967163122953
+	add	rdx, rax
+	movabs	rax, 7535518699687320737
+	or	rdx, rax
 	mov	eax, 2147352576
 	mov	eax, dword ptr [rax]
 	shr	eax, 8
 	and	eax, 255
-	add	eax, 44284
-	imul	ax, ax, 41130
+	mov	eax, eax
+	movabs	rcx, -5211628221425713868
+	add	rax, rcx
+	movabs	rcx, 103856356604844149
+	xor	rax, rcx
 	mov	ecx, 2147352576
 	mov	ecx, dword ptr [rcx]
 	shr	ecx, 8
 	and	ecx, 255
-	add	ecx, 10217
-	imul	r9w, cx, 55565
-	mov	ecx, 2147352576
-	mov	ecx, dword ptr [rcx]
-	shr	ecx, 8
-	and	ecx, 255
-	add	ecx, 20263
-	mov	dx, 35167
-                                        # kill: def $cx killed $cx killed $ecx
-                                        # kill: def $cl killed $cx
-	shl	dx, cl
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	shl	dx, cl
-	mov	r8w, r9w
-	sub	r8w, ax
-	xor	r9w, ax
-	or	dx, r8w
-	add	r8w, r9w
-	mov	cx, dx
-                                        # kill: def $cl killed $cx
-	mov	r9w, r8w
-	shl	r9w, cl
-	mov	r10w, dx
-	sub	r10w, r8w
-	add	r8w, dx
-	mov	cx, r8w
-                                        # kill: def $cl killed $cx
-	mov	ax, r9w
-	shl	ax, cl
-	sub	r9w, r10w
-	mov	cx, r8w
-                                        # kill: def $cl killed $cx
-	shl	r10w, cl
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	mov	dx, r9w
-	shl	dx, cl
-	mov	r8w, r9w
-	or	r8w, r10w
-	add	ax, r9w
-	mov	r10w, ax
-	xor	r10w, r8w
-	xor	r8w, dx
-	xor	ax, dx
-	sub	r10w, r8w
-	add	r8w, ax
-	mov	cx, r10w
-	imul	cx, r8w
-	mov	r9w, r10w
-	xor	r9w, -1
-	or	r10w, r8w
-	mov	dx, r9w
-	xor	dx, cx
-	mov	r8w, cx
-	xor	r8w, r10w
-                                        # kill: def $cl killed $cx
-	shl	r9w, cl
-	mov	ax, dx
-	xor	ax, r9w
-	imul	r9w, r8w
-	mov	cx, r8w
-                                        # kill: def $cl killed $cx
-	shl	dx, cl
-	mov	r8w, dx
-	sub	r8w, ax
-	xor	r9w, ax
-	mov	cx, dx
-                                        # kill: def $cl killed $cx
-	shr	ax, cl
-	mov	dx, ax
-	imul	dx, r8w
-	xor	r9w, r8w
-	xor	ax, r8w
-	mov	cx, dx
-                                        # kill: def $cl killed $cx
-	mov	r8w, r9w
-	shl	r8w, cl
-	mov	r10w, ax
-	sub	r10w, r9w
-	xor	ax, dx
-	mov	cx, r8w
-	imul	cx, r10w
-	mov	dx, r8w
-	xor	dx, -1
-	or	ax, r8w
-	sub	dx, cx
-	mov	r9w, ax
-	xor	r9w, cx
-                                        # kill: def $cl killed $cx
-	shl	ax, cl
-	mov	r10w, r9w
-	xor	r10w, ax
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	mov	ax, dx
-	shl	ax, cl
-	or	r9w, dx
-	mov	dx, ax
-	sub	dx, r9w
-	or	r9w, r10w
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	shr	r10w, cl
-	mov	r8w, r9w
-	sub	r8w, dx
-	sub	r10w, r9w
-	mov	cx, dx
-                                        # kill: def $cl killed $cx
-	shl	r9w, cl
-	mov	dx, r9w
-	add	dx, r8w
-	mov	r11w, r8w
-	sub	r11w, r9w
-	sub	r8w, r10w
-	mov	ax, r8w
-	imul	ax, dx
-	mov	cx, r8w
-                                        # kill: def $cl killed $cx
-	mov	r8w, r11w
-	shr	r8w, cl
-	sub	dx, r11w
-	mov	cx, dx
-                                        # kill: def $cl killed $cx
-	shl	ax, cl
-	xor	r8w, -1
-	mov	dx, r8w
-	sub	dx, ax
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	mov	r9w, r8w
-	shl	r9w, cl
-	mov	cx, r8w
-                                        # kill: def $cl killed $cx
-	shr	ax, cl
-	mov	cx, ax
-	xor	cx, -1
-	add	r9w, ax
-	sub	ax, dx
-	mov	dx, r9w
-	sub	dx, cx
-	xor	cx, r9w
-	xor	r9w, ax
-	sub	dx, r9w
-	mov	r8w, cx
-	xor	r8w, -1
-	xor	cx, r9w
-	mov	ax, r8w
-	add	ax, cx
-	mov	r9w, dx
-	sub	r9w, r8w
-                                        # kill: def $cl killed $cx
-	shl	dx, cl
-	mov	cx, ax
-                                        # kill: def $cl killed $cx
-	shl	r9w, cl
-	xor	dx, -1
-	or	dx, r9w
-	xor	dx, -1
-	xor	dx, 26478
-	mov	word ptr [rbp - 3], dx
+	mov	r8d, ecx
+	movabs	rcx, -7072901490733840424
+	add	r8, rcx
+	movabs	rcx, 5245700055373814915
+	imul	r8, rcx
+	mov	r10, rdx
+	xor	r10, r8
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	shr	r8, cl
+	or	rax, rdx
+	mov	r9, r10
+	or	r9, r8
+	imul	rax, r10
+	mov	rdx, r9
+	xor	rdx, -1
+	mov	rcx, r9
+                                        # kill: def $cl killed $rcx
+	shr	rax, cl
+	xor	r9, -1
+	mov	r8, rdx
+	add	r8, r9
+	imul	r9, rdx
+	xor	rax, rdx
+	mov	rcx, r9
+                                        # kill: def $cl killed $rcx
+	mov	rdx, r8
+	shr	rdx, cl
+	sub	rax, r9
+	xor	r9, r8
+	mov	r8, r9
+	xor	r8, rdx
+	imul	rax, r9
+	or	rdx, r9
+	mov	r9, rdx
+	xor	r9, -1
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	shl	rdx, cl
+	or	r8, rax
+	mov	rcx, r8
+                                        # kill: def $cl killed $rcx
+	mov	rax, rdx
+	shl	rax, cl
+	add	r8, rdx
+	mov	rcx, r9
+                                        # kill: def $cl killed $rcx
+	shr	rdx, cl
+	xor	rdx, -1
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	shl	r8, cl
+	mov	rax, r8
+	sub	rax, rdx
+	sub	r8, rdx
+	xor	rdx, -1
+	mov	rcx, r8
+                                        # kill: def $cl killed $rcx
+	mov	r8, rax
+	shl	r8, cl
+	mov	r9, rdx
+	xor	r9, rax
+	xor	rdx, rax
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	mov	rax, r9
+	shr	rax, cl
+	add	rdx, r8
+	xor	r9, -1
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	mov	r8, r9
+	shr	r8, cl
+	xor	rax, r9
+	sub	r9, rdx
+	or	rax, r8
+	mov	rdx, r8
+	add	rdx, r9
+	add	r8, r9
+	mov	r9, rdx
+	or	r9, rax
+	mov	rcx, r8
+	or	rcx, rdx
+	add	r8, rax
+	mov	rdx, r8
+	add	rdx, rcx
+	mov	rax, rcx
+	sub	rax, r8
+                                        # kill: def $cl killed $rcx
+	shl	r9, cl
+	mov	r8, rdx
+	xor	r8, rax
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	shr	rdx, cl
+	xor	rax, r9
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	r9, rdx
+	shl	r9, cl
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	r10, rdx
+	shr	r10, cl
+	imul	rdx, r8
+	mov	r8, r9
+	or	r8, rdx
+	or	r10, r9
+	mov	rax, r8
+	sub	rax, r10
+	sub	r8, r10
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	r9, r8
+	shl	r9, cl
+	sub	rax, r8
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	rdx, r9
+	shr	rdx, cl
+	sub	rax, r9
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	mov	r9, rax
+	shr	r9, cl
+	add	rax, rdx
+	mov	rcx, rax
+	xor	rcx, -1
+	mov	r8, rax
+	xor	r8, -1
+	add	r9, rax
+	mov	rax, r9
+	sub	rax, rcx
+	mov	rdx, r8
+	imul	rdx, rcx
+	sub	r9, r8
+	mov	r8, rax
+	imul	r8, r9
+	mov	rcx, rdx
+                                        # kill: def $cl killed $rcx
+	shr	r9, cl
+	sub	rax, rdx
+	mov	rcx, rax
+                                        # kill: def $cl killed $rcx
+	mov	rax, r9
+	shl	rax, cl
+	mov	rcx, r8
+                                        # kill: def $cl killed $rcx
+	shl	r9, cl
+	add	rax, r9
+	xor	rax, -1
+	movabs	rcx, -8093928912543965560
+	xor	rax, rcx
+	mov	qword ptr [rbp - 11], rax
 	mov	eax, 2147352576
-	mov	ecx, dword ptr [rax]
-	shr	ecx, 8
-	and	ecx, 255
-	add	ecx, 254
-	mov	al, 141
-                                        # kill: def $cl killed $cl killed $ecx
-	shr	al, cl
+	mov	eax, dword ptr [rax]
+	shr	eax, 8
+	and	eax, 255
+	add	eax, 61361
+	or	ax, 9340
 	mov	ecx, 2147352576
 	mov	edx, dword ptr [rcx]
 	shr	edx, 8
 	and	edx, 255
-	add	edx, 163
-	or	dl, 241
+	add	edx, 6141
+	add	dx, 1529
 	mov	ecx, 2147352576
-	mov	r9d, dword ptr [rcx]
+	mov	ecx, dword ptr [rcx]
+	shr	ecx, 8
+	and	ecx, 255
+	add	ecx, 14143
+	add	cx, 26647
+	imul	cx, dx
+	sub	dx, ax
+	mov	r8w, dx
+	or	r8w, cx
+	mov	r9w, dx
+	add	r9w, cx
+	xor	dx, cx
+	mov	ax, dx
+	sub	ax, r9w
+	or	r8w, dx
+	xor	dx, -1
+	mov	cx, ax
+                                        # kill: def $cl killed $cx
+	mov	r9w, r8w
+	shr	r9w, cl
+	mov	r10w, r8w
+	sub	r10w, ax
+	sub	r8w, dx
+	mov	ax, r9w
+	sub	ax, r8w
+	xor	r9w, r10w
+	imul	r10w, r8w
+	mov	cx, ax
+	xor	cx, r10w
+	mov	dx, r10w
+	sub	dx, r9w
+	imul	r10w, ax
+	mov	r9w, r10w
+	sub	r9w, cx
+	xor	r10w, -1
+	xor	dx, -1
+	mov	cx, dx
+	add	cx, r10w
+	imul	r9w, dx
+	or	dx, r10w
+	mov	ax, dx
+	sub	ax, r9w
+	add	cx, r9w
+	or	r9w, dx
+	mov	r8w, ax
+	xor	r8w, cx
+	or	r9w, cx
+                                        # kill: def $cl killed $cx
+	shr	ax, cl
+	mov	dx, r8w
+	add	dx, ax
+	sub	r8w, ax
+	xor	ax, r9w
+	mov	cx, r8w
+                                        # kill: def $cl killed $cx
+	mov	r9w, dx
+	shl	r9w, cl
+	mov	cx, dx
+                                        # kill: def $cl killed $cx
+	shl	ax, cl
+	mov	cx, r8w
+                                        # kill: def $cl killed $cx
+	shr	dx, cl
+	add	dx, r9w
+	add	ax, r9w
+	mov	r8w, dx
+	sub	r8w, ax
+	mov	cx, ax
+                                        # kill: def $cl killed $cx
+	mov	ax, dx
+	shr	ax, cl
+	xor	dx, -1
+	mov	r9w, dx
+	sub	r9w, ax
+	mov	ax, dx
+	sub	ax, r8w
+	add	r8w, dx
+	or	r9w, ax
+	mov	dx, r8w
+	xor	dx, ax
+	sub	r8w, ax
+	mov	ax, r9w
+	imul	ax, r8w
+	mov	cx, r8w
+                                        # kill: def $cl killed $cx
+	mov	r8w, dx
+	shl	r8w, cl
+	sub	r9w, dx
+	mov	r10w, ax
+	add	r10w, r9w
+	mov	cx, ax
+                                        # kill: def $cl killed $cx
+	shl	r9w, cl
+	add	r8w, ax
+	mov	dx, r10w
+	xor	dx, r8w
+	mov	cx, r8w
+	add	cx, r10w
+	xor	r9w, r8w
+	mov	ax, cx
+	add	ax, r9w
+	xor	r9w, cx
+	xor	dx, cx
+	xor	r9w, -1
+	mov	cx, ax
+                                        # kill: def $cl killed $cx
+	mov	r8w, dx
+	shl	r8w, cl
+	sub	dx, ax
+	mov	ax, dx
+	xor	ax, r8w
+	or	r9w, r8w
+	xor	dx, -1
+	or	ax, dx
+	mov	cx, r9w
+	sub	cx, dx
+	or	dx, r9w
+	mov	r8w, cx
+	xor	r8w, -1
+	mov	r9w, cx
+	sub	r9w, ax
+	or	dx, cx
+	mov	ax, dx
+	or	ax, r8w
+	imul	dx, r8w
+	add	r8w, r9w
+	mov	cx, r8w
+	xor	cx, dx
+	add	ax, r8w
+	mov	dx, ax
+	xor	dx, cx
+	xor	ax, cx
+	mov	cx, ax
+                                        # kill: def $cl killed $cx
+	shr	dx, cl
+	xor	ax, -1
+	mov	cx, ax
+                                        # kill: def $cl killed $cx
+	shr	dx, cl
+	xor	dx, 26478
+	mov	word ptr [rbp - 3], dx
+	mov	eax, 2147352576
+	mov	r9d, dword ptr [rax]
 	shr	r9d, 8
 	and	r9d, 255
-	add	r9d, 229
-	or	r9b, 35
+	add	r9d, 74
+	xor	r9b, 64
+	mov	eax, 2147352576
+	mov	ecx, dword ptr [rax]
+	shr	ecx, 8
+	and	ecx, 255
+	add	ecx, 21
+	mov	dl, 110
+                                        # kill: def $cl killed $cl killed $ecx
+	shl	dl, cl
+	mov	eax, 2147352576
+	mov	eax, dword ptr [rax]
+	shr	eax, 8
+	and	eax, 255
+	add	eax, 175
+	mov	cl, 229
+                                        # kill: def $al killed $al killed $eax
+	mul	cl
+	mov	cl, al
 	mov	r8b, r9b
-	or	r8b, al
-	mov	cl, dl
-	xor	cl, r9b
-	sub	dl, r9b
-	mov	r9b, r8b
-	shr	r9b, cl
-	mov	al, dl
-	mul	r8b
-	mov	cl, r8b
-	shr	dl, cl
-	mov	cl, dl
-	mov	r10b, r9b
-	shl	r10b, cl
-	mov	cl, r9b
-	mov	r8b, al
 	shr	r8b, cl
-	xor	dl, al
-	mov	r9b, r8b
-	or	r9b, r10b
 	mov	cl, dl
-	shr	r8b, cl
-	sub	r10b, dl
+	shl	al, cl
+	add	dl, r9b
+	mov	cl, al
+	mov	r9b, dl
+	shl	r9b, cl
+	mov	r10b, r8b
+	xor	r10b, al
+	sub	r8b, dl
 	mov	al, r8b
 	mul	r9b
-	mov	dl, r8b
-	sub	dl, r10b
-	mov	cl, r10b
-	shr	r8b, cl
-	mov	cl, dl
+	mov	cl, al
+	mov	al, r9b
+	mul	r10b
+	add	r10b, r8b
+	mov	r9b, r10b
+	xor	r9b, -1
+	mov	dl, cl
+	or	dl, r10b
+	sub	cl, al
+	mov	r8b, r9b
+	xor	r8b, -1
+	add	dl, cl
+	sub	cl, r9b
+	mov	al, dl
+	mul	cl
+	mov	r9b, dl
+	add	r9b, cl
+	or	r8b, dl
 	mov	r10b, al
-	shl	r10b, cl
-	mov	r9b, r8b
-	add	r9b, dl
+	add	r10b, r9b
+	mov	cl, al
+	mov	dl, r8b
+	shr	dl, cl
 	mov	cl, al
 	shr	r8b, cl
-	mov	dl, r10b
-	or	dl, r9b
-	xor	r9b, r8b
-	xor	r10b, -1
+	mov	r9b, r10b
+	or	r9b, r8b
+	mov	cl, dl
+	mov	al, r8b
+	shr	al, cl
+	sub	r8b, r10b
+	mov	r10b, al
+	xor	r10b, r9b
+	sub	al, r8b
+	sub	r8b, r9b
+	mov	dl, al
+	or	dl, r8b
+	mov	r9b, al
+	sub	r9b, r8b
+	mov	cl, al
+	shl	r10b, cl
+	mov	r11b, dl
+	or	r11b, r9b
+	mov	cl, r10b
+	add	cl, r9b
+	add	dl, r10b
+	mov	al, dl
+	mul	cl
+	mov	cl, dl
+	xor	cl, -1
+	sub	r11b, dl
+	or	al, cl
+	mov	r8b, r11b
+	sub	r8b, cl
+	shr	r11b, cl
+	mov	dl, r8b
+	xor	dl, al
+	or	r11b, r8b
+	mov	cl, dl
+	mov	r8b, r11b
+	shl	r8b, cl
+	add	dl, r11b
+	mov	al, r8b
+	mul	dl
+	mov	cl, r8b
+	mov	r9b, dl
+	shl	r9b, cl
+	mov	cl, dl
+	shr	r8b, cl
+	sub	r8b, al
+	mul	r9b
+	mov	dl, al
+	xor	r9b, -1
+	mov	cl, dl
+	sub	cl, r9b
+	mov	al, dl
+	mul	r8b
+	mov	r8b, al
+	mov	al, dl
+	mul	r9b
+	shr	r8b, cl
+	sub	cl, al
+	mov	al, r8b
+	shl	al, cl
+	mov	r9b, cl
+	or	r9b, r8b
+	add	r8b, cl
+	mov	cl, al
+	mov	dl, r8b
+	shl	dl, cl
+	xor	r8b, r9b
+	xor	r9b, al
+	xor	dl, -1
+	mov	cl, r8b
+	shl	r9b, cl
 	mov	cl, r9b
 	mov	al, dl
 	shl	al, cl
-	add	dl, r10b
-	add	r9b, r10b
+	mov	cl, r9b
+	shl	dl, cl
 	mov	r8b, al
-	sub	r8b, r9b
+	xor	r8b, -1
 	mov	r10b, dl
-	sub	r10b, r9b
-	xor	al, dl
-	mov	cl, al
-	xor	cl, -1
-	xor	r8b, al
-	add	al, r10b
-	shl	r8b, cl
-	xor	al, -1
-	mov	r9b, al
-	xor	r9b, -1
-	mul	r8b
-	mov	cl, al
-	mov	r8b, cl
-	xor	r8b, r9b
-	mov	dl, r9b
-	add	dl, cl
-	add	cl, r9b
-	mov	r9b, cl
-	or	r9b, dl
-	mov	al, dl
-	mul	r8b
-	xor	dl, cl
-	mov	cl, al
-	mov	r8b, dl
-	shr	r8b, cl
-	mov	cl, al
-	add	cl, dl
-	mul	r9b
-	mov	dl, al
-	mov	al, r8b
-	xor	al, dl
-	xor	dl, r8b
-	sub	cl, r8b
-	mov	r8b, dl
-	shl	r8b, cl
-	mul	dl
-	add	al, r8b
-	xor	r8b, -1
-	mov	dl, al
-	add	dl, r8b
-	mov	cl, r8b
-	sub	cl, al
-	xor	r8b, -1
-	mov	r9b, cl
-	xor	r9b, -1
-	mov	al, cl
-	mul	dl
-	shl	r8b, cl
-	mov	r10b, al
-	sub	r10b, r9b
-	mov	cl, al
-	or	cl, r8b
-	mul	r8b
-	mov	dl, al
-	mov	al, r10b
-	or	al, cl
-	shl	r10b, cl
-	add	dl, cl
+	add	r10b, al
+	xor	dl, -1
+	mov	r9b, r8b
+	sub	r9b, r10b
 	mov	cl, dl
-	or	cl, al
-	mov	r9b, r10b
-	or	r9b, dl
-	add	dl, r10b
-	mov	r8b, r9b
-	shr	r8b, cl
-	mov	al, dl
-	mul	r9b
-	add	dl, r9b
-	mov	cl, r8b
-	mov	r8b, dl
-	shr	r8b, cl
-	mov	r9b, dl
-	add	r9b, al
-	xor	dl, al
-	mov	cl, r8b
-	mov	r10b, dl
 	shl	r10b, cl
-	mov	al, dl
-	mul	r9b
-	mov	r8b, al
-	add	dl, r9b
-	mov	al, r8b
-	mul	dl
-	mov	cl, r8b
-	xor	cl, r10b
 	xor	dl, r8b
-	mov	r8b, dl
-	shr	r8b, cl
-	or	al, dl
-	mul	r8b
-	xor	al, 0
-	mov	byte ptr [rbp - 1], al
+	mov	cl, dl
+	mov	al, r9b
+	shr	al, cl
+	xor	r9b, r10b
+	or	dl, r10b
+	mov	r8b, r9b
+	or	r8b, dl
+	mul	dl
+	mov	cl, dl
+	shl	r9b, cl
+	add	al, r8b
+	mov	cl, r8b
+	shr	r9b, cl
+	or	r9b, al
+	xor	r9b, -1
+	mov	byte ptr [rbp - 1], r9b
 	lea	rax, [rbp - 11]
 	mov	qword ptr [rbp - 48], rax
 	mov	rax, qword ptr [rbp - 64]
@@ -1012,31 +973,27 @@ main:                                   # @main
 	shr	ecx, 8
 	and	ecx, 255
 	add	ecx, 1048576
-	xor	ecx, 830140590
-	mov	r8d, 2147352576
-	mov	r8d, dword ptr [r8]
-	shr	r8d, 8
-	and	r8d, 255
-	add	r8d, 16777215
-	mov	r9d, 19632525
-	sub	r9d, r8d
-	mov	r8d, ecx
-	xor	r8d, r9d
+	mov	r8d, 2652494037
                                         # kill: def $cl killed $ecx
-	shr	r9d, cl
-	mov	r10d, r8d
-	imul	r10d, r9d
-	sub	r8d, r9d
-	mov	r9d, r8d
-	or	r9d, r10d
-	mov	ecx, r8d
-                                        # kill: def $cl killed $ecx
-	shr	r10d, cl
+	shl	r8d, cl
+	mov	ecx, 2147352576
+	mov	ecx, dword ptr [rcx]
+	shr	ecx, 8
+	and	ecx, 255
+	add	ecx, 16777215
+	add	ecx, 1901240620
+	mov	r9d, ecx
+	or	r9d, r8d
+	imul	r8d, ecx
 	mov	ecx, r9d
-                                        # kill: def $cl killed $ecx
-	shl	r10d, cl
-	add	r10d, 1193046
-	mov	ecx, r10d
+	imul	ecx, r8d
+	add	r9d, r8d
+	mov	r8d, r9d
+	or	r8d, ecx
+	or	ecx, r9d
+	add	r8d, ecx
+	add	r8d, 24261720
+	mov	ecx, r8d
 	sub	rdx, rcx
 	mov	rcx, rdx
 	mov	rdx, rax
