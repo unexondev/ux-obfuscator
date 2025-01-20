@@ -14,8 +14,13 @@
 	Only person who's experienced exactly same things as you did, is him...
 */
 
-#define GET_INSTRINFO_ENUM
-#define GET_INSTRINFO_MC_DESC
+#define GET_INSTRINFO_ENUM // to obtain X86 instruction opcodes
+#define GET_INSTRINFO_HEADER // to obtain MCInstrInfo creator functions
+#define GET_INSTRINFO_CTOR_DTOR // to obtain MCInstrInfo creator functions
+#define GET_INSTRINFO_MC_DESC // to obtain MCInstrDesc templates
+#define GET_REGINFO_HEADER // to obtain target-dependent register headers
+#define GET_REGINFO_MC_DESC // to obtain target-dependent register descriptors
+#define GET_REGINFO_TARGET_DESC // to obtain target-dependent register structures
 
 #include "llvm/IR/Module.h"
 #include "llvm/IR/LegacyPassManager.h"
@@ -494,13 +499,13 @@ bool runPass(Module &M) {
 
     auto& ctx = M.getContext();
 
-	obfuscate_references(M);
-
-	return false;
-
-    // Encode strings
+    // Obfuscate strings
 
 	obfuscate_string_literals(M);
+
+	// Obfuscate references
+
+	obfuscate_references(M);
 
 	return false;
 
@@ -566,9 +571,17 @@ public:
 
 	static char ID;
 
-	MIRPass() : MachineFunctionPass(ID) {}
+	MIRPass() : MachineFunctionPass(ID) {
+
+		// InitX86MCInstrInfo(&x86_ii); // init x86 instruction set
+
+	}
 
 	bool runOnMachineFunction(MachineFunction &MF) override {
+
+		const TargetInstrInfo* x86_tii = MF.getSubtarget().getInstrInfo();
+
+		MachineRegisterInfo& x86_mri = MF.getRegInfo();
 
 		errs() << "Running on function: " << MF.getName() << "\n";
 
@@ -582,10 +595,14 @@ public:
 
 				if (inst.getOpcode() == X86::MOV64ri) {
 
+					MachineOperand& op_base = inst.getOperand(1);
+
+					if (!op_base.isGlobal()) continue;
+
 					/* getOperand(0) yields the return vreg */
 					Register reg_addr = inst.getOperand(0).getReg();
 
-					bool reg_no_use = true;
+					bool reg_not_used = true;
 
 					auto n_it_inst = it_inst;
 					for (++n_it_inst; n_it_inst != bbl.end(); ++n_it_inst) {
@@ -596,33 +613,78 @@ public:
 
 						if (n_inst.readsRegister(reg_addr, nullptr)) {
 
-							MachineOperand& op_dest = n_inst.getOperand(1);
-
 							// If pattern matches, then it's not considered a use
-							if (n_inst.getOpcode() == X86::ADD64ri32
-								&& op_dest.isReg() && op_dest.getReg() == reg_addr) {
+							if (n_inst.getOpcode() == X86::ADD64ri32) {
+
+								MachineOperand& op_dest = n_inst.getOperand(1);
+								MachineOperand& op_offset = n_inst.getOperand(2);
+
+								if (!op_dest.isReg()
+									|| op_dest.getReg() != reg_addr
+									|| !op_offset.isImm()) continue;
+
+								int64_t op_offset_i = op_offset.getImm();
 
 								MIMetadata mi_md = MIMetadata(DebugLoc());
 
-								MCInstrDesc mc_idesc = X86Descs.Insts[X86::ADD64ri32];
+								const MCInstrDesc& mc_idesc = x86_tii->get(X86::LEA64r);
 
-								// BuildMI(MF, mi_md, mc_idesc, n_inst.getOperand(0).getReg());
+								// errs() << "Constraints: " << mc_idesc.operands()[0].Constraints << "\n";
 
-								// MF.deleteMachineInstr(&n_inst);
+								Register reg_use = n_inst.getOperand(0).getReg();
+
+								// MachineInstr* mi_lea = BuildMI(
+									// bbl,
+									// it_inst,
+									// mi_md,
+									// mc_idesc,
+									// reg_use)
+									// .addGlobalAddress(op_base.getGlobal(), op_offset.getImm());
+
+								// First, remove all operands except the def
+								while (n_inst.getNumOperands() > 1) {
+									n_inst.removeOperand(1);
+								}
+
+								n_inst.setDesc(mc_idesc);
+
+								n_inst.addOperand(MachineOperand::CreateReg(X86::RIP, false)); // base
+
+								n_inst.addOperand(MachineOperand::CreateImm(1)); // scale
+
+								n_inst.addOperand(MachineOperand::CreateReg(X86::NoRegister, false)); // index
+
+								n_inst.addOperand(
+									MachineOperand::CreateGA(
+										op_base.getGlobal(),
+										op_offset_i)); // disp
+
+								n_inst.addOperand(MachineOperand::CreateReg(X86::NoRegister, false)); // seg
+
+								// %def = MOV64rm @.ptr + 0*0 + offset 
+
+								// # 1254a6 <_end+0x121486>
+
+								errs() << n_inst;
 
 								continue;
 
 							} 
 
 							// Otherwise, it's an external use and base instruction can't be deleted (base instr : MOV64ri %addr)
-							reg_no_use = false;
+							reg_not_used = false;
 
 						}
 
 					}
-
-					// to-do: remove base 'here' if reg is not used
 				
+					if (reg_not_used) {
+						/* remove base if reg is not used */
+
+						it_inst = --bbl.erase(&inst);
+
+					}
+
 				} 
 
 			}

@@ -16,7 +16,7 @@ echo "Running WareVisor (LLC) tests on file <"$1">..."
 
 OBFIRINPUTPATH="./binaries/ir-out-obf.ll"
 
-LIBBUILDDIR="/home/unex/Dev/llvm-project/build"
+LIBBUILDDIR="/home/cbsahmet/Dev/llvm/llvm-project/build"
 
 LIBPATH=$LIBBUILDDIR"/lib/UX-Obfuscator.so"
 
@@ -47,8 +47,10 @@ if [ $ERRCODE -ne 0 ]; then
 fi
 
 OBFFINALASMOUTPUTPATH="./binaries/final-asm-out-obf.asm"
+OBFFINALOBJOUTPUTPATH="./binaries/final-obj-out-obf.o"
 
-llc -mtriple=x86_64 --start-after="x86-isel" $OBFMIRNEXTOUTPUTPATH -o $OBFFINALASMOUTPUTPATH
+llc -mtriple=x86_64 --start-after="x86-isel" --x86-asm-syntax=intel $OBFMIRNEXTOUTPUTPATH -o $OBFFINALASMOUTPUTPATH
+llc -mtriple=x86_64 --start-after="x86-isel" --filetype=obj $OBFMIRNEXTOUTPUTPATH -o $OBFFINALOBJOUTPUTPATH
 
 echo "LLC tests are performed successfully."
 

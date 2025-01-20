@@ -35,7 +35,7 @@ if [ $ERRCODE -ne 0 ]; then
 
 fi
 
-LIBBUILDDIR="/home/unex/Dev/llvm-project/build"
+LIBBUILDDIR="/home/cbsahmet/Dev/llvm/llvm-project/build"
 
 ninja -C $LIBBUILDDIR UX-Obfuscator
 
